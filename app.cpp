@@ -15,7 +15,7 @@ struct Patient {
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
 
-void getch() {
+void holdc() {
     cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     cin.get();
 }
@@ -119,7 +119,7 @@ void addPatient(Patient Db[], int& numpatients) {
     Clear();
     cout << "Patient " << newPatient.name  << " added successfully.\n";
     cout << "Press any key to continue..."<<endl;
-    getch();
+    holdc();
 }
 
 // EDIT PATIENT FUNCTION
@@ -193,7 +193,7 @@ void deletepatient(Patient Db[], int& numpatients) {
     if (numpatients == 0) {
         cout << "/nDatabase is empty. Cannot delete.\n";
         cout << "Press any key to continue...";
-        getch();
+        holdc();
         return;
     }
 
@@ -226,7 +226,7 @@ void deletepatient(Patient Db[], int& numpatients) {
         cout << "Deletion canceled.\n";
     }
     cout << "Press any key to continue...";
-    getch();
+    holdc();
 }
 
 //  MAIN FUNCTION
@@ -263,7 +263,7 @@ int main() {
                 Clear();
                 listPatients(Db,numpatients);
                 cout << "Press any key to continue..."<<endl;
-                getch();
+                holdc();
                 break;
             case 3:
                 editpatient(Db,numpatients);
@@ -278,7 +278,7 @@ int main() {
             default:
                 cout << "Invalid choice. Please try again.\n";
                 cout << "Press any key to continue...";
-                getch();
+                holdc();
         }
     } while (choice != 0);
 
