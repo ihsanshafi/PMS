@@ -368,6 +368,30 @@ void deletepatient(Patient Db[], int& numpatients) {
     utils::Clear();
 }
 
+// CLEAR DATABASE FUNCTION
+void clearDatabase(Patient Db[], int& numpatients) {
+    utils::Clear();
+    cout << "CLEAR DATABASE\n";
+    cout << "--------------------------------------------------\n";
+    if (numpatients == 0) {
+        cout << "Database is already empty.\n";
+    } else {
+        cout << "Are you sure you want to clear the database? (Y/N): ";
+        char confirmClear;
+        cin >> confirmClear;
+        if (toupper(confirmClear) == 'Y') {
+            numpatients = 0; // Reset the number of patients
+            cout << "Database cleared successfully.\n";
+        } else {
+            cout << "Database clearing canceled.\n";
+        }
+    }
+    cout << "--------------------------------------------------\n";
+    cout << "press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear();
+}
+
 //  MAIN FUNCTION
 int main() {
     utils::Clear();
@@ -386,6 +410,7 @@ int main() {
         cout << "3. Edit patient record\n";
         cout << "4. log patient condition\n";
         cout << "5. Delete patient record\n";
+        cout << "6. clear database\n";
         cout << "0. Exit\n";
         cout << "Enter your choice:> ";
 
@@ -414,6 +439,9 @@ int main() {
                 break;
             case 5:
                 deletepatient(Db,numpatients);
+                break;
+            case 6:
+                clearDatabase(Db,numpatients);
                 break;
             case 0:
                 utils::Clear();
