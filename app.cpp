@@ -10,6 +10,7 @@ struct Patient {
     int age;
     int weight;
     char gender;       // M/F/O (Male/Female/Other)
+    string phoneNumber;
 };
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
@@ -25,7 +26,16 @@ void Clear(){
     system("clear");
 #endif
 }
-
+// Function to validate phone number (basic validation)
+bool isValidPhoneNumber(const string& phone) {
+    if (phone.empty()) return false;
+    for (char c : phone) {
+        if (!isdigit(c) && c != '+' && c != '-' && c != ' ' && c != '(' && c != ')') {
+            return false;
+        }
+    }
+    return true;
+}
 // LIST PATIENTS FUNCTION  Displays all patients, used in the other functions
 void listPatients(const Patient Db[], int numpatients) {
     if (numpatients > 0) {
@@ -37,6 +47,7 @@ void listPatients(const Patient Db[], int numpatients) {
             cout << "Age:        " << Db[i].age << " years\n";
             cout << "Weight:     " << Db[i].weight << " kg\n";
             cout << "Gender:     " << Db[i].gender << "\n";
+            cout << "PhoneNum:   " << Db[i].phoneNumber << "\n";
             cout << "==========================================\n";
         }
     } else {
@@ -87,6 +98,16 @@ void addPatient(Patient Db[], int& numpatients) {
         cin >> newPatient.gender;
         newPatient.gender = toupper(newPatient.gender);
     }
+
+    // Phone Number
+    cout << "Enter phone number: ";
+    cin.ignore();
+    getline(cin, newPatient.phoneNumber);
+    while (!isValidPhoneNumber(newPatient.phoneNumber)) {
+        cout << "Invalid phone number. Please enter a valid number: ";
+        getline(cin, newPatient.phoneNumber);
+    }
+
     // Add to database
     Db[numpatients++] = newPatient;
     
@@ -117,6 +138,7 @@ void editpatient(Patient Db[],int numpatients){
             cout << "       Previous age: " << Db[patientId - 1].age << "\n";
             cout << "       previous weight: " << Db[patientId - 1].weight << "\n";
             cout << "       previous gender: " << Db[patientId - 1].gender << "\n";
+            cout << "       previous phone number: " << Db[patientId - 1].phoneNumber << "\n";
             cout << "-------------------------\n";
 
             cout << "Enter new patient name: ";
@@ -201,6 +223,7 @@ void deletepatient(Patient Db[], int& numpatients) {
     cout << "Press any key to continue...";
     getch();
 }
+
 //  MAIN FUNCTION
 int main() {
     Clear();
