@@ -13,6 +13,7 @@ struct Patient {
     char gender;       // M/F/O (Male/Female/Other)
     string phoneNumber;
     string bloodType;
+    string previousConditions; // List of previous conditions
 };
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
@@ -89,6 +90,9 @@ void addPatient(Patient Db[], int& numpatients) {
     utils::Clear();
     if (numpatients >= MAX_PATIENTS) {
         cout << "Database is full! Cannot add more patients.\n";
+        cout << "press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
         return;
     }
 
@@ -131,7 +135,7 @@ void addPatient(Patient Db[], int& numpatients) {
     // Blood Type
     cout << "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
     cin >> newPatient.bloodType;
-    // Convert to uppercase
+
     for (char &c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
     while (!utils::isValidBloodType(newPatient.bloodType)) {
         cout << "Invalid blood type. Please enter a valid type: "; // Prompt for valid blood type
@@ -148,12 +152,17 @@ void addPatient(Patient Db[], int& numpatients) {
         getline(cin, newPatient.phoneNumber);
     }
 
+    // Initialize previous health conditions as empty
+    newPatient.previousConditions = ""; // Initialize previous conditions as empty
+    
     // Add to database
     Db[numpatients++] = newPatient;
 
     utils::Clear();
     cout << "Patient " << newPatient.name  << " added successfully.\n";
-    cout << "Press any key to continue..."<<endl;
+    cout << "--------------------------------------------------\n";
+
+    cout << "press Enter to continue..."<<endl;
 
     utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
@@ -162,14 +171,15 @@ void addPatient(Patient Db[], int& numpatients) {
 // EDIT PATIENT FUNCTION
 void editpatient(Patient Db[],int numpatients){
     utils::Clear();
-    if (numpatients == 0) {
-        cout << "Database is empty. Cannot edit.\n";
-        cout << "Press any key to continue...";
-        utils::holdc(); // Wait for user input before clearing the screen
-        return;
-    }// Clear the console screen
     cout << "EDIT PATIENT RECORD\n";
     cout << "--------------------------------------------------\n";
+    if (numpatients == 0) {
+        cout << "Database is empty. Cannot edit.\n";
+        cout << "press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
+        return;
+    }// Clear the console screen
     listPatients(Db, numpatients); // List all patients before editing
     int patientId;
     cout << "Enter the id of the patient to edit (1 to " << numpatients << "): ";
@@ -181,12 +191,12 @@ void editpatient(Patient Db[],int numpatients){
     if (patientId >= 1 && patientId <= numpatients) {
         cout << "-------------------------\n";
         cout << "Editing patient " << patientId << ":\n"; 
-        cout << "       previous_Name: " << Db[patientId - 1].name << "\n";
-        cout << "       Previous age: " << Db[patientId - 1].age << "\n";
-        cout << "       previous weight: " << Db[patientId - 1].weight << "\n";
-        cout << "       previous gender: " << Db[patientId - 1].gender << "\n";
-        cout << "       previous blood type: " << Db[patientId - 1].bloodType << "\n";
-        cout << "       previous phone number: " << new_phoneNumber << "\n";
+        cout << "       previous Name: " << Db[patientId - 1].name << "\n";
+        cout << "       Previous Age: " << Db[patientId - 1].age << "\n";
+        cout << "       previous Weight: " << Db[patientId - 1].weight << "\n";
+        cout << "       previous Gender: " << Db[patientId - 1].gender << "\n";
+        cout << "       previous Blood type: " << Db[patientId - 1].bloodType << "\n";
+        cout << "       previous Phone number: " << new_phoneNumber << "\n";
         cout << "-------------------------\n";
         // name
         cout << "Enter new patient name: ";
@@ -205,7 +215,7 @@ void editpatient(Patient Db[],int numpatients){
         cin.ignore(); // Clear the newline character from the input buffer
         cin >> new_weight; // Use cin to read the weight
         Db[patientId - 1].weight = new_weight;
-        
+
         // gender
         cout << "Enter new gender (M/F/O): ";
         cin >> newGender; // Use cin to read
@@ -244,7 +254,60 @@ void editpatient(Patient Db[],int numpatients){
     } else {
         cout << "Invalid patient id.\n";
     }
-    cout << "Press any key to continue...";
+    cout << "--------------------------------------------------\n";
+
+    cout << "press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear();
+}
+
+//  LOG PATIENT CONDITION FUNCTION
+void logpatientcondition(Patient Db[], int numpatients) {
+    utils::Clear();
+    cout << "LOG PATIENT CONDITION\n";
+    cout << "--------------------------------------------------\n";
+
+    if (numpatients == 0) {
+        cout << "Database is empty. Cannot log condition.\n";
+        cout << "press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
+        return;
+    }
+
+    listPatients(Db, numpatients);
+
+    int patientId;
+    cout << "Enter the ID of the patient to log condition (1 to " << numpatients << "): ";
+    while (!(cin >> patientId) || patientId < 1 || patientId > numpatients) {
+        cout << "Invalid ID. Please enter a number between 1 and " << numpatients << ": ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+    }
+    utils::Clear(); // Clear the console screen before logging condition
+    cout << "--------------------------------------------------\n";
+    cout << "Logging condition for patient #" << patientId << ": ";
+    cout<< Db[patientId - 1].name 
+    << ", Age: " << Db[patientId - 1].age 
+    << ", Weight: " << Db[patientId - 1].weight 
+    << ",blood type: " << Db[patientId - 1].bloodType << "\n"<<"\n";
+    cout << Db[patientId - 1].name << "'s previous conditions: " 
+         << (Db[patientId - 1].previousConditions.empty() ? "None" : Db[patientId - 1].previousConditions) << "\n"; // Display previous conditions if any
+    cout << "--------------------------------------------------\n";
+
+    string condition;
+    cout << "Enter the condition to log for patient #" << patientId << ": ";
+    cin.ignore();
+    getline(cin, condition);
+
+    Db[patientId - 1].previousConditions += (Db[patientId - 1].previousConditions.empty() ? "" : ", ") + condition; // Append the new condition to the existing conditions
+
+    cout << "Condition logged successfully for patient #" << patientId << ".\n";
+    
+    cout << "Updated conditions for " << Db[patientId - 1].name << ": "
+         << Db[patientId - 1].previousConditions << "\n"; // Display updated conditions
+    cout << "--------------------------------------------------\n";
+    cout << "press Enter to continue...";
     utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
 }
@@ -257,9 +320,10 @@ void deletepatient(Patient Db[], int& numpatients) {
     cout << "--------------------------------------------------\n";
 
     if (numpatients == 0) {
-        cout << "/nDatabase is empty. Cannot delete.\n";
-        cout << "Press any key to continue...";
+        cout << "Database is empty. Cannot delete.\n";
+        cout << "press Enter to continue...";
         utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear(); 
         return;
     }
 
@@ -280,7 +344,8 @@ void deletepatient(Patient Db[], int& numpatients) {
     cout << "Are you sure? (Y/N): ";
     char confirm;
     cin >> confirm;
-    
+    utils::Clear(); // Clear the console screen before confirming deletion
+    cout << "--------------------------------------------------\n";
     if (toupper(confirm) == 'Y') {
         // Shift all elements after the deleted patient
         for (int i = patientId - 1; i < numpatients - 1; i++) {
@@ -291,7 +356,8 @@ void deletepatient(Patient Db[], int& numpatients) {
     } else {
         cout << "Deletion canceled.\n";
     }
-    cout << "Press any key to continue...";
+    cout << "--------------------------------------------------\n";
+    cout << "press Enter to continue...";
     utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
 }
@@ -312,7 +378,8 @@ int main() {
         cout << "1. Add a new patient\n";
         cout << "2. View all patients\n";
         cout << "3. Edit patient record\n";
-        cout << "4. Delete patient record\n";
+        cout << "4. log patient condition\n";
+        cout << "5. Delete patient record\n";
         cout << "0. Exit\n";
         cout << "Enter your choice:> ";
 
@@ -329,7 +396,7 @@ int main() {
             case 2:
                 utils::Clear();
                 listPatients(Db,numpatients);
-                cout << "Press any key to continue..."<<endl;
+                cout << "press Enter to continue..."<<endl;
                 utils::holdc(); // Wait for user input before clearing the screen
                 utils::Clear();
                 break;
@@ -337,15 +404,21 @@ int main() {
                 editpatient(Db,numpatients);
                 break;
             case 4:
+                logpatientcondition(Db,numpatients);
+                break;
+            case 5:
                 deletepatient(Db,numpatients);
                 break;
             case 0:
                 utils::Clear();
+                cout << "Exiting the program...\n";
+                cout << "Thank you for using the Patient Management System!\n";
                 cout << "Program Closed... Goodbye!\n";
+                cout << "--------------------------------------------------\n";
                 break;
             default:
                 cout << "Invalid choice. Please try again.\n";
-                cout << "Press any key to continue...";
+                cout << "press Enter to continue...";
                 utils::holdc(); // Wait for user input before clearing the screen
         }
     } while (choice != 0);
