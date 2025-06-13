@@ -67,29 +67,30 @@ namespace utils {
         }
         return false;
     }
+    void listPatients(const Patient Db[], int numpatients) {
+        if (numpatients > 0) {
+            cout << "ALL PATIENTS (" << numpatients << ")\n";
+            cout << "==========================================\n";
+            for (int i = 0; i < numpatients; ++i) {
+                cout << "PATIENT #" << (i + 1) << "\n";
+                cout << "Name:       " << Db[i].name << "\n";
+                cout << "Age:        " << Db[i].age << " years\n";
+                cout << "Weight:     " << Db[i].weight << " kg\n";
+                cout << "Gender:     " << Db[i].gender << "\n";
+                cout << "Blood Type: " << Db[i].bloodType << "\n";
+                cout << "PhoneNum:   " << Db[i].phoneNumber << "\n";
+                cout << "==========================================\n";
+            }
+        } else {
+            cout << "Database is empty.\n";
+        }
+    }
 
 }
 
 // FUNCTION PROTOTYPES
 // LIST PATIENTS FUNCTION  Displays all patients, used in the other functions
-void listPatients(const Patient Db[], int numpatients) {
-    if (numpatients > 0) {
-        cout << "ALL PATIENTS (" << numpatients << ")\n";
-        cout << "==========================================\n";
-        for (int i = 0; i < numpatients; ++i) {
-            cout << "PATIENT #" << (i + 1) << "\n";
-            cout << "Name:       " << Db[i].name << "\n";
-            cout << "Age:        " << Db[i].age << " years\n";
-            cout << "Weight:     " << Db[i].weight << " kg\n";
-            cout << "Gender:     " << Db[i].gender << "\n";
-            cout << "Blood Type: " << Db[i].bloodType << "\n";
-            cout << "PhoneNum:   " << Db[i].phoneNumber << "\n";
-            cout << "==========================================\n";
-        }
-    } else {
-        cout << "Database is empty.\n";
-    }
-}
+
 
 // ADD PATIENT FUNCTION
 void addPatient(Patient Db[], int& numpatients) {
@@ -105,7 +106,8 @@ void addPatient(Patient Db[], int& numpatients) {
     Patient newPatient;
 
     cout << "ADD NEW PATIENT\n";
-    cout << "--------------------------------------------------\n";
+    cout << "==================================================\n";
+
 
     // Name
     cout << "Enter patient name: ";
@@ -178,7 +180,8 @@ void addPatient(Patient Db[], int& numpatients) {
 void editpatient(Patient Db[],int numpatients){
     utils::Clear();
     cout << "EDIT PATIENT RECORD\n";
-    cout << "--------------------------------------------------\n";
+    cout << "==================================================\n";
+
     if (numpatients == 0) {
         cout << "Database is empty. Cannot edit.\n";
         cout << "press Enter to continue...";
@@ -186,7 +189,7 @@ void editpatient(Patient Db[],int numpatients){
         utils::Clear();
         return;
     }// Clear the console screen
-    listPatients(Db, numpatients); // List all patients before editing
+    utils::listPatients(Db, numpatients); // List all patients before editing
     int patientId;
     cout << "Enter the id of the patient to edit (1 to " << numpatients << "): ";
     cin >> patientId;
@@ -271,7 +274,7 @@ void editpatient(Patient Db[],int numpatients){
 void logpatientcondition(Patient Db[], int numpatients) {
     utils::Clear();
     cout << "LOG PATIENT CONDITION\n";
-    cout << "--------------------------------------------------\n";
+    cout << "==================================================\n";
 
     if (numpatients == 0) {
         cout << "Database is empty. Cannot log condition.\n";
@@ -281,7 +284,7 @@ void logpatientcondition(Patient Db[], int numpatients) {
         return;
     }
 
-    listPatients(Db, numpatients);
+    utils::listPatients(Db, numpatients);
 
     int patientId;
     cout << "Enter the ID of the patient to log condition (1 to " << numpatients << "): ";
@@ -292,7 +295,7 @@ void logpatientcondition(Patient Db[], int numpatients) {
     }
     utils::Clear(); // Clear the console screen before logging condition
     cout << "--------------------------------------------------\n";
-    cout << "Logging condition for patient #" << patientId << ": ";
+    cout << "Logging condition for patient #" << patientId << ": "<<"\n";
     cout<< Db[patientId - 1].name 
     << ", Age: " << Db[patientId - 1].age 
     << ", Weight: " << Db[patientId - 1].weight 
@@ -307,7 +310,8 @@ void logpatientcondition(Patient Db[], int numpatients) {
     getline(cin, condition);
 
     Db[patientId - 1].previousConditions += (Db[patientId - 1].previousConditions.empty() ? "" : ", ") + condition; // Append the new condition to the existing conditions
-
+    utils::Clear(); // Clear the console screen after logging condition
+    cout << "--------------------------------------------------\n";
     cout << "Condition logged successfully for patient #" << patientId << ".\n";
     
     cout << "Updated conditions for " << Db[patientId - 1].name << ": "
@@ -333,7 +337,7 @@ void deletepatient(Patient Db[], int& numpatients) {
         return;
     }
 
-    listPatients(Db, numpatients);
+    utils::listPatients(Db, numpatients);
 
     int patientId;
     cout << "Enter the ID of the patient to delete (1 to " << numpatients << "): ";
@@ -372,7 +376,7 @@ void deletepatient(Patient Db[], int& numpatients) {
 void clearDatabase(Patient Db[], int& numpatients) {
     utils::Clear();
     cout << "CLEAR DATABASE\n";
-    cout << "--------------------------------------------------\n";
+    cout << "==================================================\n";
     if (numpatients == 0) {
         cout << "Database is already empty.\n";
     } else {
@@ -426,7 +430,7 @@ int main() {
                 break;
             case 2:
                 utils::Clear();
-                listPatients(Db,numpatients);
+                utils::listPatients(Db,numpatients);
                 cout << "press Enter to continue..."<<endl;
                 utils::holdc(); // Wait for user input before clearing the screen
                 utils::Clear();
@@ -445,8 +449,6 @@ int main() {
                 break;
             case 0:
                 utils::Clear();
-                cout << "Exiting the program...\n";
-                cout << "Thank you for using the Patient Management System!\n";
                 cout << "Program Closed... Goodbye!\n";
                 cout << "--------------------------------------------------\n";
                 break;
