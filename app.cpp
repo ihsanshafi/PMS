@@ -3,6 +3,7 @@
 #include <string> // for string operations
 #include <conio.h> // for getch()
 #include <cctype> // for toupper()
+#include <limits> // for numeric_limits
 using namespace std;
 //  Define the Patient structure
 struct Patient {
@@ -38,6 +39,12 @@ namespace utils {
         }
         return true;
     }
+
+    void holdc() {
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cin.get();
+    }
+
 }
 
 // FUNCTION PROTOTYPES
@@ -85,7 +92,7 @@ void addPatient(Patient Db[], int& numpatients) {
         cin.clear();
         cin.ignore(10000, '\n'); // Clear the input buffer
     }
-    
+
     // Weight
     cout << "Enter patient weight (kg): ";
     while (!(cin >> newPatient.weight) || newPatient.weight <= 0) {
@@ -93,7 +100,7 @@ void addPatient(Patient Db[], int& numpatients) {
         cin.clear();
         cin.ignore(10000, '\n'); // Clear the input buffer
     }
-    
+
     // Gender
     cout << "Enter gender (M/F/O): ";
     cin >> newPatient.gender;
@@ -120,7 +127,7 @@ void addPatient(Patient Db[], int& numpatients) {
     cout << "Patient " << newPatient.name  << " added successfully.\n";
     cout << "Press any key to continue..."<<endl;
 
-    getch();
+    utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
 }
 
@@ -130,7 +137,7 @@ void editpatient(Patient Db[],int numpatients){
     if (numpatients == 0) {
         cout << "Database is empty. Cannot edit.\n";
         cout << "Press any key to continue...";
-        getch();
+        utils::holdc(); // Wait for user input before clearing the screen
         return;
     }// Clear the console screen
     cout << "EDIT PATIENT RECORD\n";
@@ -178,6 +185,15 @@ void editpatient(Patient Db[],int numpatients){
         }
 
         Db[patientId - 1].gender = newGender; // Update
+        cout << "Enter new phone number: ";
+        cin.ignore(); // Clear the newline character from the input buffer 
+        getline(cin, Db[patientId - 1].phoneNumber); // Use getline to allow spaces in the phone number
+        while (!utils::isValidPhoneNumber(Db[patientId - 1].phoneNumber)) {
+            cout << "Invalid phone number. Please enter a valid number: ";
+            getline(cin, Db[patientId - 1].phoneNumber);
+        }
+
+        Db[patientId - 1].phoneNumber = Db[patientId - 1].phoneNumber; // Update phone number
 
         utils::Clear(); // Clear the console screen after editing
         cout << "patient "<<patientId<<"'s record updated successfully.\n";
@@ -185,7 +201,7 @@ void editpatient(Patient Db[],int numpatients){
         cout << "Invalid patient id.\n";
     }
     cout << "Press any key to continue...";
-    getch();
+    utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
 }
 
@@ -199,7 +215,7 @@ void deletepatient(Patient Db[], int& numpatients) {
     if (numpatients == 0) {
         cout << "/nDatabase is empty. Cannot delete.\n";
         cout << "Press any key to continue...";
-        getch();
+        utils::holdc(); // Wait for user input before clearing the screen
         return;
     }
 
@@ -232,7 +248,7 @@ void deletepatient(Patient Db[], int& numpatients) {
         cout << "Deletion canceled.\n";
     }
     cout << "Press any key to continue...";
-    getch();
+    utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
 }
 
@@ -270,7 +286,7 @@ int main() {
                 utils::Clear();
                 listPatients(Db,numpatients);
                 cout << "Press any key to continue..."<<endl;
-                getch();
+                utils::holdc(); // Wait for user input before clearing the screen
                 utils::Clear();
                 break;
             case 3:
@@ -281,12 +297,12 @@ int main() {
                 break;
             case 0:
                 utils::Clear();
-                cout << "Exiting program... Goodbye!\n";
+                cout << "Program Closed... Goodbye!\n";
                 break;
             default:
                 cout << "Invalid choice. Please try again.\n";
                 cout << "Press any key to continue...";
-                getch();
+                utils::holdc(); // Wait for user input before clearing the screen
         }
     } while (choice != 0);
 
