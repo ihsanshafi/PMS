@@ -12,9 +12,11 @@ struct Patient {
     int weight;
     char gender;       // M/F/O (Male/Female/Other)
     string phoneNumber;
+    string bloodType;
 };
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
+
 // Utility functions
 namespace utils {
     // CONSOLE CLEAR FUNCTION
@@ -28,6 +30,16 @@ namespace utils {
         system("clear");
     #endif
     }
+    // Function to hold the console until a key is pressed
+    // This function waits for the user to press any key before continuing 
+    // It is useful for pausing the program to allow the user to read messages
+    // It clears the input buffer to avoid any leftover characters affecting the next input
+    // It uses std::numeric_limits to ensure it reads until the end of the line
+    // It uses cin.get() to wait for a single key press
+    void holdc() {
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cin.get();
+    }
     // Function to validate phone number (basic validation)
     // Checks if the phone number contains only digits, spaces, and common symbols
     bool isValidPhoneNumber(const string& phone) {
@@ -40,9 +52,13 @@ namespace utils {
         return true;
     }
 
-    void holdc() {
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        cin.get();
+    // Function to validate blood type
+    bool isValidBloodType(const string& bloodType) {
+        const string validTypes[] = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
+        for (const auto& type : validTypes) {
+            if (bloodType == type) return true;
+        }
+        return false;
     }
 
 }
@@ -59,6 +75,7 @@ void listPatients(const Patient Db[], int numpatients) {
             cout << "Age:        " << Db[i].age << " years\n";
             cout << "Weight:     " << Db[i].weight << " kg\n";
             cout << "Gender:     " << Db[i].gender << "\n";
+            cout << "Blood Type: " << Db[i].bloodType << "\n";
             cout << "PhoneNum:   " << Db[i].phoneNumber << "\n";
             cout << "==========================================\n";
         }
@@ -111,6 +128,17 @@ void addPatient(Patient Db[], int& numpatients) {
         newPatient.gender = toupper(newPatient.gender);
     }
 
+    // Blood Type
+    cout << "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+    cin >> newPatient.bloodType;
+    // Convert to uppercase
+    for (char &c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
+    while (!utils::isValidBloodType(newPatient.bloodType)) {
+        cout << "Invalid blood type. Please enter a valid type: "; // Prompt for valid blood type
+        cin >> newPatient.bloodType;// Read the input
+        for (char &c : newPatient.bloodType) c = toupper(c);// Convert to uppeercase
+    }
+
     // Phone Number
     cout << "Enter phone number: ";
     cin.ignore();
@@ -147,7 +175,7 @@ void editpatient(Patient Db[],int numpatients){
     cout << "Enter the id of the patient to edit (1 to " << numpatients << "): ";
     cin >> patientId;
     utils::Clear(); // Clear the console screen before editing
-    string new_name;
+    string new_name, new_bloodType, new_phoneNumber;
     float new_age, new_weight;
     char newGender;
     if (patientId >= 1 && patientId <= numpatients) {
@@ -157,24 +185,28 @@ void editpatient(Patient Db[],int numpatients){
         cout << "       Previous age: " << Db[patientId - 1].age << "\n";
         cout << "       previous weight: " << Db[patientId - 1].weight << "\n";
         cout << "       previous gender: " << Db[patientId - 1].gender << "\n";
-        cout << "       previous phone number: " << Db[patientId - 1].phoneNumber << "\n";
+        cout << "       previous blood type: " << Db[patientId - 1].bloodType << "\n";
+        cout << "       previous phone number: " << new_phoneNumber << "\n";
         cout << "-------------------------\n";
-
+        // name
         cout << "Enter new patient name: ";
         cin.ignore(); // Clear the newline character from the input buffer
         getline(cin, new_name); // Use getline to allow spaces in the name
         Db[patientId - 1].name = new_name;
 
+        // age
         cout << "Enter new age: ";
         cin.ignore(); // Clear the newline character from the input buffer
         cin >> new_age; // Use cin to read the age
         Db[patientId - 1].age = new_age;
 
+        // weight
         cout << "Enter new weight: ";
         cin.ignore(); // Clear the newline character from the input buffer
         cin >> new_weight; // Use cin to read the weight
         Db[patientId - 1].weight = new_weight;
-
+        
+        // gender
         cout << "Enter new gender (M/F/O): ";
         cin >> newGender; // Use cin to read
         newGender = toupper(newGender); // Convert to uppercase
@@ -183,18 +215,30 @@ void editpatient(Patient Db[],int numpatients){
             cin >> newGender; // Read again
             newGender = toupper(newGender); // Convert to uppercase
         }
-
+        
         Db[patientId - 1].gender = newGender; // Update
+        // blood type
+        cout << "Enter new blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+        cin.ignore(); // Clear the newline character from the input buffer
+        getline(cin, new_bloodType); // Use getline to allow spaces in the blood type and 
+        while (!utils::isValidBloodType(new_bloodType)) {
+            cout << "Invalid blood type. Please enter a valid type: ";
+            getline(cin, new_bloodType);
+            for (char &c : new_bloodType) c = toupper(c); // Convert to uppercase
+        }
+        Db[patientId - 1].bloodType = new_bloodType; // Update the blood type
+
+        // phone number
         cout << "Enter new phone number: ";
         cin.ignore(); // Clear the newline character from the input buffer 
-        getline(cin, Db[patientId - 1].phoneNumber); // Use getline to allow spaces in the phone number
-        while (!utils::isValidPhoneNumber(Db[patientId - 1].phoneNumber)) {
+        getline(cin, new_phoneNumber); // Use getline to allow spaces in the phone number
+        while (!utils::isValidPhoneNumber(new_phoneNumber)) {
             cout << "Invalid phone number. Please enter a valid number: ";
-            getline(cin, Db[patientId - 1].phoneNumber);
+            getline(cin, new_phoneNumber);
         }
-
-        Db[patientId - 1].phoneNumber = Db[patientId - 1].phoneNumber; // Update phone number
-
+        Db[patientId - 1].phoneNumber = new_phoneNumber; // Update the phone number
+        // Display the updated patient record
+        cout << "-------------------------\n";
         utils::Clear(); // Clear the console screen after editing
         cout << "patient "<<patientId<<"'s record updated successfully.\n";
     } else {
