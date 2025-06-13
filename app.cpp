@@ -34,11 +34,6 @@ namespace utils {
     #endif
     }
     // Function to hold the console until a key is pressed
-    // This function waits for the user to press any key before continuing
-    // It is useful for pausing the program to allow the user to read messages
-    // It clears the input buffer to avoid any leftover characters affecting the next input
-    // It uses std::numeric_limits to ensure it reads until the end of the line
-    // It uses cin.get() to wait for a single key press
     void holdc() {
         #if defined _WIN32
             getch(); // Wait for a key press in Windows
@@ -67,6 +62,7 @@ namespace utils {
         }
         return false;
     }
+    // Function to list all patients in the database
     void listPatients(const Patient Db[], int numpatients) {
         if (numpatients > 0) {
             cout << "ALL PATIENTS (" << numpatients << ")\n";
@@ -89,8 +85,6 @@ namespace utils {
 }
 
 // FUNCTION PROTOTYPES
-// LIST PATIENTS FUNCTION  Displays all patients, used in the other functions
-
 
 // ADD PATIENT FUNCTION
 void addPatient(Patient Db[], int& numpatients) {
