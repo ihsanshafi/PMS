@@ -1,7 +1,7 @@
 #include <iostream> // for input/output operations
 #include <list> // for list operations
 #include <string> // for string operations
-#include <conio.h> // for getch()
+#include <limits> // for std::numeric_limits
 #include <cctype> // for toupper()
 using namespace std;
 //  Define the Patient structure
@@ -14,6 +14,11 @@ struct Patient {
 };
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
+
+void getch() {
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin.get();
+}
 
 // CONSOLE CLEAR FUNCTION
 void Clear(){
