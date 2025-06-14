@@ -3,17 +3,24 @@
 #include <string> // for string operations
 #include <limits> // for std::numeric_limits
 #include <cctype> // for toupper()
+#include <ctime>// for displaying date of registration
+
 using namespace std;
 //  Define the Patient structure
 struct Patient {
     string name;
     int age;
     int weight;
-    char gender;       // M/F/O (Male/Female/Other)
+    time_t timestamp;      // Time of registration
+    char gender;           // M/F/O (Male/Female/Other)
     string phoneNumber;
+    string registerDate;   // Human-readable registration date
 };
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
+
+// Removed invalid global timestamp initialization.
+// Set the timestamp for each patient when adding a new patient.
 
 void holdc() {
     cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -53,6 +60,7 @@ void listPatients(const Patient Db[], int numpatients) {
             cout << "Weight:     " << Db[i].weight << " kg\n";
             cout << "Gender:     " << Db[i].gender << "\n";
             cout << "PhoneNum:   " << Db[i].phoneNumber << "\n";
+            cout << "Registry Date:" << Db[i].registerDate << "\n";
             cout << "==========================================\n";
         }
     } else {
@@ -67,10 +75,18 @@ void addPatient(Patient Db[], int& numpatients) {
         cout << "Database is full! Cannot add more patients.\n";
         return;
     }
-
     Patient newPatient;
 
+    // Set registration timestamp and human-readable date
+    newPatient.timestamp = time(nullptr);
+    newPatient.registerDate = ctime(&newPatient.timestamp);
+    // Remove trailing newline from ctime
+    if (!newPatient.registerDate.empty() && newPatient.registerDate.back() == '\n') {
+        newPatient.registerDate.pop_back();
+    }
+
     cout << "ADD NEW PATIENT\n";
+    cout << "--------------------------------------------------\n";
     cout << "--------------------------------------------------\n";
 
     // Name
@@ -112,6 +128,8 @@ void addPatient(Patient Db[], int& numpatients) {
         cout << "Invalid phone number. Please enter a valid number: ";
         getline(cin, newPatient.phoneNumber);
     }
+
+    
 
     // Add to database
     Db[numpatients++] = newPatient;
