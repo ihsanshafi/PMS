@@ -81,7 +81,29 @@ namespace utils {
             cout << "Database is empty.\n";
         }
     }
-
+    //  Function to check if a patient already exists in the database
+    bool isPatientExists(const Patient Db[], int numpatients, const Patient& newPatient) {
+        for (int i = 0; i < numpatients; ++i) {
+            // Case-insensitive name comparison
+            bool nameMatch = true;
+            if (Db[i].name.length() != newPatient.name.length()) {
+                nameMatch = false;
+            } else {
+                for (size_t j = 0; j < Db[i].name.length(); ++j) {
+                    if (tolower(Db[i].name[j]) != tolower(newPatient.name[j])) {
+                        nameMatch = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Check name and phone number (since these should be unique)
+            if (nameMatch && Db[i].phoneNumber == newPatient.phoneNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 // FUNCTION PROTOTYPES
@@ -157,6 +179,17 @@ void addPatient(Patient Db[], int& numpatients) {
     // Initialize previous health conditions as empty
     newPatient.previousConditions = ""; // Initialize previous conditions as empty
     
+    // Check for duplicate before adding
+    if (utils::isPatientExists(Db, numpatients, newPatient)) {
+        utils::Clear();
+        cout << "Patient already exists in the database!\n";
+        cout << "--------------------------------------------------\n";
+        cout << "press Enter to continue...";
+        utils::holdc();
+        utils::Clear();
+        return;
+    }
+
     // Add to database
     Db[numpatients++] = newPatient;
 
