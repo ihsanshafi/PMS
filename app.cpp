@@ -12,7 +12,7 @@ struct Patient {
     string name;
     int age;
     int weight;
-    char gender;       // M/F/O (Male/Female/Other)
+    char gender;       // M/F (Male/Female)
     string phoneNumber;
     string bloodType;
     string previousConditions; // List of previous conditions
@@ -125,11 +125,11 @@ void addPatient(Patient Db[], int& numpatients) {
     }
 
     // Gender
-    cout << "Enter gender (M/F/O): ";
+    cout << "Enter gender (M/F): ";
     cin >> newPatient.gender;
     newPatient.gender = toupper(newPatient.gender);
-    while (newPatient.gender != 'M' && newPatient.gender != 'F' && newPatient.gender != 'O') {
-        cout << "Invalid gender. Please enter M, F, or O: ";
+    while (newPatient.gender != 'M' && newPatient.gender != 'F') {
+        cout << "Invalid gender. Please enter M or F : ";
         cin >> newPatient.gender;
         newPatient.gender = toupper(newPatient.gender);
     }
@@ -220,11 +220,11 @@ void editpatient(Patient Db[],int numpatients){
         Db[patientId - 1].weight = new_weight;
 
         // gender
-        cout << "Enter new gender (M/F/O): ";
+        cout << "Enter new gender (M/F): ";
         cin >> newGender; // Use cin to read
         newGender = toupper(newGender); // Convert to uppercase
-        while (newGender != 'M' && newGender != 'F' && newGender != 'O') {
-            cout << "Invalid input. Please enter M, F, or O: ";
+        while (newGender != 'M' && newGender != 'F') {
+            cout << "Invalid input. Please enter M or F : ";
             cin >> newGender; // Read again
             newGender = toupper(newGender); // Convert to uppercase
         }
