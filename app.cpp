@@ -186,8 +186,6 @@ void addPatient(Patient Db[], int& numpatients) {
 
     // Initialize previous health conditions as empty
     newPatient.previousConditions = ""; // Initialize previous conditions as empty
-    // Initialize previous health conditions as empty
-    newPatient.previousConditions = ""; // Initialize previous conditions as empty
 
     // Set the registration timestamp
     newPatient.timestamp = time(nullptr);
@@ -556,11 +554,11 @@ void searchPatients(const Patient Db[], int numpatients) {
             break;
 
         case 4: // Search by gender
-            cout << "Enter gender to search (M/F/O): ";
+            cout << "Enter gender to search (M/F): ";
             cin >> searchGender;
             searchGender = toupper(searchGender);
-            while (searchGender != 'M' && searchGender != 'F' && searchGender != 'O') {
-                cout << "Invalid gender. Please enter M, F, or O: ";
+            while (searchGender != 'M' && searchGender != 'F') {
+                cout << "Invalid gender. Please enter M or F: ";
                 cin >> searchGender;
                 searchGender = toupper(searchGender);
             }
