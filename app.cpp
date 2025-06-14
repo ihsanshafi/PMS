@@ -19,9 +19,6 @@ struct Patient {
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
 
-// Removed invalid global timestamp initialization.
-// Set the timestamp for each patient when adding a new patient.
-
 void holdc() {
     cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     cin.get();
