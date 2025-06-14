@@ -6,6 +6,8 @@
 #endif
 #include <cctype> // for toupper()
 #include <limits> // for numeric_limits
+#include <ctime>
+
 using namespace std;
 //  Define the Patient structure
 struct Patient {
@@ -16,6 +18,7 @@ struct Patient {
     string phoneNumber;
     string bloodType;
     string previousConditions; // List of previous conditions
+    time_t timestamp;
 };
 
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
@@ -69,12 +72,17 @@ namespace utils {
             cout << "==========================================\n";
             for (int i = 0; i < numpatients; ++i) {
                 cout << "PATIENT #" << (i + 1) << "\n";
-                cout << "Name:       " << Db[i].name << "\n";
-                cout << "Age:        " << Db[i].age << " years\n";
-                cout << "Weight:     " << Db[i].weight << " kg\n";
-                cout << "Gender:     " << Db[i].gender << "\n";
-                cout << "Blood Type: " << Db[i].bloodType << "\n";
-                cout << "PhoneNum:   " << Db[i].phoneNumber << "\n";
+                cout << "Name:         " << Db[i].name << "\n";
+                cout << "Age:          " << Db[i].age << " years\n";
+                cout << "Weight:       " << Db[i].weight << " kg\n";
+                cout << "Gender:       " << Db[i].gender << "\n";
+                cout << "Blood Type:   " << Db[i].bloodType << "\n";
+                cout << "PhoneNum:     " << Db[i].phoneNumber << "\n";
+                // Convert timestamp to readable format
+                char buffer[80];
+                tm* timeinfo = localtime(&Db[i].timestamp);
+                strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+                cout << "Registry Date: " << buffer << "\n";
                 cout << "==========================================\n";
             }
         } else {
@@ -156,11 +164,14 @@ void addPatient(Patient Db[], int& numpatients) {
 
     // Initialize previous health conditions as empty
     newPatient.previousConditions = ""; // Initialize previous conditions as empty
+    // Initialize previous health conditions as empty
+    newPatient.previousConditions = ""; // Initialize previous conditions as empty
+
+    // Set the registration timestamp
+    newPatient.timestamp = time(nullptr);
     
     // Add to database
     Db[numpatients++] = newPatient;
-
-    utils::Clear();
     cout << "Patient " << newPatient.name  << " added successfully.\n";
     cout << "--------------------------------------------------\n";
 
