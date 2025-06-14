@@ -390,6 +390,170 @@ void clearDatabase(Patient Db[], int& numpatients) {
     utils::Clear();
 }
 
+// SEARCH PATIENTS FUNCTION
+void searchPatients(const Patient Db[], int numpatients) {
+    utils::Clear();
+    cout << "SEARCH PATIENTS\n";
+    cout << "==================================================\n";
+
+    if (numpatients == 0) {
+        cout << "Database is empty. No patients to search.\n";
+        cout << "press Enter to continue...";
+        utils::holdc();
+        utils::Clear();
+        return;
+    }
+
+    int searchChoice;
+    cout << "Search by:\n";
+    cout << "1. Name\n";
+    cout << "2. Age\n";
+    cout << "3. Blood Type\n";
+    cout << "4. Gender\n";
+    cout << "Enter your choice: ";
+    
+    while (!(cin >> searchChoice) || searchChoice < 1 || searchChoice > 4) {
+        cout << "Invalid choice. Please enter 1-4: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+    }
+
+    utils::Clear(); // Clear the console screen before displaying results
+    bool found = false;
+    string searchStr;
+    int minAge, maxAge;
+    char searchGender;
+
+    switch (searchChoice) {
+        case 1: // Search by name
+            cout << "Enter patient name to search: ";
+            cin.ignore();
+            getline(cin, searchStr);
+            utils::Clear(); // Clear the console screen before displaying results
+            cout << "SEARCH RESULTS\n";
+            cout << "==================================================\n";
+            cout << "Searching for patients with name containing: " << searchStr << "\n";
+            for (int i = 0; i < numpatients; ++i) {
+                if (Db[i].name.find(searchStr) != string::npos) {
+                    cout << "--------------------------------------------------\n";
+                    cout << "PATIENT #" << (i + 1) << "\n";
+                    cout << "Name:       " << Db[i].name << "\n";
+                    cout << "Age:        " << Db[i].age << " years\n";
+                    cout << "Gender:     " << Db[i].gender << "\n";
+                    cout << "Blood Type: " << Db[i].bloodType << "\n";
+                    cout << "Phone:      " << Db[i].phoneNumber << "\n";
+                    if (!Db[i].previousConditions.empty()) {
+                        cout << "Conditions: " << Db[i].previousConditions << "\n";
+                    }
+                    cout << "--------------------------------------------------\n";
+                    found = true;
+                }
+            }
+            break;
+
+        case 2: // Search by exact age
+            cout << "Enter age to search: ";
+            while (!(cin >> minAge) || minAge < 0) {  // We can reuse minAge variable for single age
+                cout << "Invalid age. Please enter a positive number: ";
+                cin.clear();
+                cin.ignore(10000, '\n');
+            }
+            utils::Clear(); // Clear the console screen before displaying results
+            cout << "SEARCH RESULTS\n";
+            cout << "==================================================\n";
+            cout << "Searching for patients with age: " << minAge << "\n";
+            for (int i = 0; i < numpatients; ++i) {
+                if (Db[i].age == minAge) { 
+                    cout << "--------------------------------------------------\n";
+                    cout << "PATIENT #" << (i + 1) << "\n";
+                    cout << "Name:       " << Db[i].name << "\n";
+                    cout << "Age:        " << Db[i].age << " years\n";
+                    cout << "Gender:     " << Db[i].gender << "\n";
+                    cout << "Blood Type: " << Db[i].bloodType << "\n";
+                    cout << "Phone:      " << Db[i].phoneNumber << "\n";
+                    if (!Db[i].previousConditions.empty()) {
+                        cout << "Conditions: " << Db[i].previousConditions << "\n";
+                    }
+                    cout << "--------------------------------------------------\n";
+                    found = true;
+                }
+            }
+            break;
+
+        case 3: // Search by blood type
+            cout << "Enter blood type to search (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+            cin >> searchStr;
+            for (char &c : searchStr) c = toupper(c);
+            while (!utils::isValidBloodType(searchStr)) {
+                cout << "Invalid blood type. Please enter a valid type: ";
+                cin >> searchStr;
+                for (char &c : searchStr) c = toupper(c);
+            }
+            utils::Clear(); // Clear the console screen before displaying results
+            cout << "SEARCH RESULTS\n";
+            cout << "==================================================\n";
+            cout << "Searching for patients with blood type: " << searchStr << "\n";
+            for (int i = 0; i < numpatients; ++i) {
+                if (Db[i].bloodType == searchStr) {
+                    cout << "--------------------------------------------------\n";
+                    cout << "PATIENT #" << (i + 1) << "\n";
+                    cout << "Name:       " << Db[i].name << "\n";
+                    cout << "Age:        " << Db[i].age << " years\n";
+                    cout << "Gender:     " << Db[i].gender << "\n";
+                    cout << "Blood Type: " << Db[i].bloodType << "\n";
+                    cout << "Phone:      " << Db[i].phoneNumber << "\n";
+                    if (!Db[i].previousConditions.empty()) {
+                        cout << "Conditions: " << Db[i].previousConditions << "\n";
+                    }
+                    cout << "--------------------------------------------------\n";
+                    found = true;
+                }
+            }
+            break;
+
+        case 4: // Search by gender
+            cout << "Enter gender to search (M/F/O): ";
+            cin >> searchGender;
+            searchGender = toupper(searchGender);
+            while (searchGender != 'M' && searchGender != 'F' && searchGender != 'O') {
+                cout << "Invalid gender. Please enter M, F, or O: ";
+                cin >> searchGender;
+                searchGender = toupper(searchGender);
+            }
+            utils::Clear(); // Clear the console screen before displaying results
+            cout << "SEARCH RESULTS\n";
+            cout << "==================================================\n";
+            cout << "Searching "<<searchGender<< " patients:";
+            for (int i = 0; i < numpatients; ++i) {
+                if (Db[i].gender == searchGender) {
+                    cout << "--------------------------------------------------\n";
+                    cout << "PATIENT #" << (i + 1) << "\n";
+                    cout << "Name:       " << Db[i].name << "\n";
+                    cout << "Age:        " << Db[i].age << " years\n";
+                    cout << "Gender:     " << Db[i].gender << "\n";
+                    cout << "Blood Type: " << Db[i].bloodType << "\n";
+                    cout << "Phone:      " << Db[i].phoneNumber << "\n";
+                    if (!Db[i].previousConditions.empty()) {
+                        cout << "Conditions: " << Db[i].previousConditions << "\n";
+                    }
+                    cout << "--------------------------------------------------\n";
+                    found = true;
+                }
+            }
+            break;
+    }
+
+    if (!found) {
+
+        cout << "No patients found matching your criteria.\n";
+    }
+
+    cout << "==================================================\n";
+    cout << "press Enter to continue...";
+    utils::holdc();
+    utils::Clear();
+}
+
 //  MAIN FUNCTION
 int main() {
     utils::Clear();
@@ -409,6 +573,7 @@ int main() {
         cout << "4. log patient condition\n";
         cout << "5. Delete patient record\n";
         cout << "6. clear database\n";
+        cout << "7. Search patients\n";
         cout << "0. Exit\n";
         cout << "Enter your choice:> ";
 
@@ -440,6 +605,9 @@ int main() {
                 break;
             case 6:
                 clearDatabase(Db,numpatients);
+                break;
+            case 7:
+                searchPatients(Db, numpatients);
                 break;
             case 0:
                 utils::Clear();
