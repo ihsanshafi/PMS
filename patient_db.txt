@@ -1,4 +1,4 @@
-3
+4
 Brooks
 20
 60
@@ -12,11 +12,18 @@ Bisrat
 M
 0987654321
 O+
-severe dehydration, severe hypoglycemia
+severe dehydration, severe hypoglycemia, basically an idiot
 adonay
 16
 57
 M
 0987654321
+O-
+
+helina
+34
+34
+F
+0987654325
 O-
 

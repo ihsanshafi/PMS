@@ -1,3 +1,5 @@
+// PATIENT DATABASE MANAGEMENT SYSTEM
+
 #include <iostream> // for input/output operations
 #include <list> // for list operations
 #include <string> // for string operations
@@ -114,7 +116,6 @@ namespace utils {
     }
 }
 
-// FUNCTION PROTOTYPES
 
 // ADD PATIENT FUNCTION
 void addPatient(Patient Db[], int& numpatients) {
