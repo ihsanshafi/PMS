@@ -114,6 +114,44 @@ namespace utils {
     }
 }
 // menus
+void manageMenu(){
+    int choice;
+    do {
+        cout << "=============== MANAGE PATIENT RECORDS ================\n";
+        cout << "1. List All Patients\n";
+        cout << "2. Search Patient by Name\n";
+        cout << "3. search Patient by Phone Number\n";
+        cout << "0. Back to Main Menu\n";
+        cout << "Enter your choice:> ";
+
+        while (!(cin >> choice)) {
+            cout << "Invalid input. Please enter a number: ";
+            cin.clear();
+            cin.ignore(10000, '\n');
+        }
+
+        switch (choice) {
+            case 1:
+                // List all patients
+                break;
+            case 2:
+                // Search patient by name
+                break;
+            case 3:
+                // search patient by phone number
+                break;
+            case 0:
+                utils::Clear();
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                cout << "press Enter to continue...";
+                utils::holdc(); // Wait for user input before clearing the screen
+                utils::Clear();
+        }
+    } while (choice != 0);
+};
+
 void mainMenu(){
     int choice;
     do {
@@ -132,6 +170,7 @@ void mainMenu(){
 
         switch (choice) {
             case 1:
+                manageMenu(); // Call the manage menu function
                 break;
             case 2:
                 break;
