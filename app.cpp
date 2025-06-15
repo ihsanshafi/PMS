@@ -636,6 +636,30 @@ void addPatient(Patient Db[], int& numpatients) {
     utils::Clear();
 }
 
+void clearDatabase(Patient Db[], int& numpatients) {
+    utils::Clear();
+    cout << "CLEAR DATABASE\n";
+    cout << "==================================================\n";
+    if (numpatients == 0) {
+        cout << "Database is already empty.\n";
+    } else {
+        cout << "Are you sure you want to clear the database? (Y/N): ";
+        char confirmClear;
+        cin >> confirmClear;
+        if (toupper(confirmClear) == 'Y') {
+            numpatients = 0; // Reset the number of patients
+            cout << "Database cleared successfully.\n";
+        } else {
+            cout << "Database clearing canceled.\n";
+        }
+    }
+    cout << "--------------------------------------------------\n";
+    cout << "press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear();
+}
+
+
 // MENUS
 void manageMenu(){
     utils::Clear(); // Clear the console screen before displaying the manage menu
@@ -683,6 +707,43 @@ void manageMenu(){
     } while (choice != 0);
 };
 
+void systemMenu() {
+    utils::Clear(); // Clear the console screen before displaying the system menu
+    int choice;
+    do {
+        cout << "=============== SYSTEM DATABASE MANAGEMENT ================\n";
+        cout << "1. Clear Database\n";
+        cout << "2. Search Patients\n";
+        cout << "0. Back to Main Menu\n";
+        cout << "Enter your choice:> ";
+
+        while (!(cin >> choice)) {
+            cout << "Invalid input. Please enter a number: ";
+            cin.clear();
+            cin.ignore(10000, '\n');
+        }
+
+        switch (choice) {
+            case 1:
+                // Clear database
+                clearDatabase(Db, numpatients); // Call the clear database function
+                break;
+            case 2:
+                // Search patients
+                findPatients(Db, numpatients, 1);
+                break;
+            case 0:
+                utils::Clear();
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                cout << "press Enter to continue...";
+                utils::holdc(); // Wait for user input before clearing the screen
+                utils::Clear();
+        }
+    } while (choice != 0);
+};
+
 void mainMenu(){
     
     int choice;
@@ -708,7 +769,7 @@ void mainMenu(){
                 addPatient(Db, numpatients); // Call the add patient function
                 break;
             case 3:
-                utils::Clear();
+                systemMenu(); // Call the system menu function
                 break;
             case 0:
                 utils::Clear();
