@@ -72,8 +72,7 @@ namespace utils {
     // Function to list all patients in the database
     void listPatients(const Patient Db[], int numpatients) {
         if (numpatients > 0) {
-            cout << "ALL PATIENTS (" << numpatients << ")\n";
-            cout << "==========================================\n";
+            cout << "=========== ALL PATIENTS (" << numpatients << ") ===========\n";
             for (int i = 0; i < numpatients; ++i) {
                 cout << "PATIENT #" << (i + 1) << "\n";
                 cout << "Name:         " << Db[i].name << "\n";
@@ -90,7 +89,9 @@ namespace utils {
                 cout << "==========================================\n";
             }
         } else {
+            cout << "==========================================\n";
             cout << "Database is empty.\n";
+            cout << "==========================================\n";
         }
     }
     //  Function to check if a patient already exists in the database
@@ -242,6 +243,11 @@ void manageMenu(){
         switch (choice) {
             case 1:
                 // List all patients
+                utils::Clear();
+                utils::listPatients(Db, numpatients); // Call the list patients function
+                cout << "press Enter to continue..."<<endl;
+                utils::holdc(); // Wait for user input before clearing the screen
+                utils::Clear(); // Clear the console screen after listing patients
                 break;
             case 2:
                 // Search patient by name
@@ -304,6 +310,8 @@ void mainMenu(){
 //  MAIN FUNCTION
 int main() {
     utils::Clear();
+    // Display welcome message
+    cout << "==========================================\n";
     cout << "WELCOME TO THE PATIENT MANAGEMENT SYSTEM!\n";
     cout << "==========================================\n";
     mainMenu(); // Call the main menu function
