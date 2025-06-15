@@ -23,7 +23,11 @@ struct Patient {
     time_t timestamp;
 };
 
+// System-wide data
 const int MAX_PATIENTS = 100; // Maximum number of patients in the database
+int numpatients = 0;
+Patient Db[MAX_PATIENTS];
+
 
 // Utility functions
 namespace utils {
@@ -68,8 +72,7 @@ namespace utils {
     // Function to list all patients in the database
     void listPatients(const Patient Db[], int numpatients) {
         if (numpatients > 0) {
-            cout << "ALL PATIENTS (" << numpatients << ")\n";
-            cout << "==========================================\n";
+            cout << "=========== ALL PATIENTS (" << numpatients << ") ===========\n";
             for (int i = 0; i < numpatients; ++i) {
                 cout << "PATIENT #" << (i + 1) << "\n";
                 cout << "Name:         " << Db[i].name << "\n";
@@ -86,7 +89,9 @@ namespace utils {
                 cout << "==========================================\n";
             }
         } else {
+            cout << "==========================================\n";
             cout << "Database is empty.\n";
+            cout << "==========================================\n";
         }
     }
     //  Function to check if a patient already exists in the database
@@ -113,7 +118,112 @@ namespace utils {
         return false;
     }
 }
-// menus
+
+// ADD PATIENT FUNCTION
+void addPatient(Patient Db[], int& numpatients) {
+    back: // Label to go back to if patient already exists
+    // Clear the console screen
+    utils::Clear();
+    if (numpatients >= MAX_PATIENTS) {
+        cout << "==================================================\n";
+        cout << "Database is full! Cannot add more patients.\n";
+        cout << "==================================================\n";
+        cout << "press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
+        return;
+    }
+
+    Patient newPatient;
+
+    cout << "=============== REGISTER NEW PATIENT ================\n";
+
+    // Name input
+    cout << "Enter Patient name: ";
+    cin.ignore();
+    getline(cin, newPatient.name);
+    while (newPatient.name.empty()) {
+        cout << "Name cannot be empty. Please enter a valid name: ";
+        getline(cin, newPatient.name);
+    }
+
+    // Age input
+    cout << "Enter Patient age: ";
+    while (!(cin >> newPatient.age) || newPatient.age <= 0) {
+        cout << "Invalid age. Please enter a positive number: ";
+        cin.clear();
+        cin.ignore(10000, '\n'); // Clear the input buffer
+    }
+
+    // Weight input
+    cout << "Enter patient weight (kg): ";
+    while (!(cin >> newPatient.weight) || newPatient.weight <= 0) {
+        cout << "Invalid weight. Please enter a positive number: ";
+        cin.clear();
+        cin.ignore(10000, '\n'); // Clear the input buffer
+    }
+
+    // Gender input
+    cout << "Enter gender (M/F): ";
+    cin >> newPatient.gender;
+    newPatient.gender = toupper(newPatient.gender);
+    while (newPatient.gender != 'M' && newPatient.gender != 'F') {
+        cout << "Invalid gender. Please enter M or F : ";
+        cin >> newPatient.gender;
+        newPatient.gender = toupper(newPatient.gender);
+    }
+
+    // Blood Type input
+    cout << "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+    cin >> newPatient.bloodType;
+    for (char &c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
+    while (!utils::isValidBloodType(newPatient.bloodType)) {
+        cout << "Invalid blood type. Please enter a valid type: "; // Prompt for valid blood type
+        cin >> newPatient.bloodType;// Read the input
+        for (char &c : newPatient.bloodType) c = toupper(c);// Convert to uppeercase
+    }
+
+    // Phone Number
+    cout << "Enter phone number: ";
+    cin.ignore();
+    getline(cin, newPatient.phoneNumber);
+    while (!utils::isValidPhoneNumber(newPatient.phoneNumber)) {
+        cout << "Invalid phone number. Please enter a valid number: ";
+        getline(cin, newPatient.phoneNumber);
+    }
+
+    // Initialize previous health conditions as empty
+    newPatient.previousConditions = ""; // Initialize previous conditions as empty
+
+    // Set the registration timestamp
+    newPatient.timestamp = time(nullptr);
+
+    // Check for duplicate before adding
+    if (utils::isPatientExists(Db, numpatients, newPatient)) {
+        utils::Clear();
+        cout << "==================================================\n";
+        cout << "Patient already exists in the database!\n";
+        cout << "Please check the name and phone number.\n";
+        cout << "==================================================\n";
+        cout << "press Enter to continue...";
+        utils::holdc();
+        utils::Clear();
+        goto back; // Go back to the beginning of the function to re-enter details
+        // return;
+    }
+
+    // Add to database
+    Db[numpatients++] = newPatient;
+
+    utils::Clear(); // Clear the console screen after adding patient
+    cout << "==================================================\n";
+    cout << "Patient '" << newPatient.name  << "' Registered successfully.\n";// Display success message
+    cout << "==================================================\n";
+    cout << "press Enter to continue..."<<endl;
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear();
+}
+
 void manageMenu(){
     int choice;
     do {
@@ -133,6 +243,11 @@ void manageMenu(){
         switch (choice) {
             case 1:
                 // List all patients
+                utils::Clear();
+                utils::listPatients(Db, numpatients); // Call the list patients function
+                cout << "press Enter to continue..."<<endl;
+                utils::holdc(); // Wait for user input before clearing the screen
+                utils::Clear(); // Clear the console screen after listing patients
                 break;
             case 2:
                 // Search patient by name
@@ -173,6 +288,7 @@ void mainMenu(){
                 manageMenu(); // Call the manage menu function
                 break;
             case 2:
+                addPatient(Db, numpatients); // Call the add patient function
                 break;
             case 3:
                 break;
@@ -194,8 +310,8 @@ void mainMenu(){
 //  MAIN FUNCTION
 int main() {
     utils::Clear();
-    int numpatients = 0;
-    Patient Db[MAX_PATIENTS];
+    // Display welcome message
+    cout << "==========================================\n";
     cout << "WELCOME TO THE PATIENT MANAGEMENT SYSTEM!\n";
     cout << "==========================================\n";
     mainMenu(); // Call the main menu function
