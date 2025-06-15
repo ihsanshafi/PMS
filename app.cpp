@@ -31,7 +31,7 @@ Patient Db[MAX_PATIENTS];
 
 // Utility functions
 namespace utils {
-    // CONSOLE CLEAR FUNCTION
+    // Function to clear the console screen
     void Clear(){
         #if defined _WIN32
             system("cls");
@@ -109,7 +109,7 @@ namespace utils {
                     }
                 }
             }
-            
+
             // Check name and phone number (since these should be unique)
             if (nameMatch && Db[i].phoneNumber == newPatient.phoneNumber) {
                 return true;
@@ -117,10 +117,216 @@ namespace utils {
         }
         return false;
     }
+
 }
 
-void displayPatientDetails(const Patient Db[], int patientIndex) {
-    if (patientIndex <= 0 || patientIndex >= MAX_PATIENTS) {// Check if the index is valid
+// log patient condition
+void logpatientcondition(Patient Db[], int patientIndex) {
+    utils::Clear();
+    cout << "LOG PATIENT CONDITION\n";
+    cout << "==================================================\n";
+
+    if (patientIndex < 0 || patientIndex >= MAX_PATIENTS || Db[patientIndex].name.empty()) {
+        cout << "Invalid patient index.\n";
+        cout << "Press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
+        return; // Return early if the index is invalid
+    }
+
+
+    utils::Clear(); // Clear the console screen before logging condition
+    cout << "--------------------------------------------------\n";
+    cout << "Logging condition for patient #" << patientIndex << ": "<<"\n";
+    cout<< Db[patientIndex].name 
+    << ", Age: " << Db[patientIndex].age 
+    << ", Weight: " << Db[patientIndex].weight 
+    << ",blood type: " << Db[patientIndex].bloodType << "\n"<<"\n";
+    cout << Db[patientIndex].name << "'s previous conditions: " 
+         << (Db[patientIndex].previousConditions.empty() ? "None" : Db[patientIndex].previousConditions) << "\n"; // Display previous conditions if any
+    cout << "--------------------------------------------------\n";
+
+    string condition;
+    cout << "Enter the condition to log for " << Db[patientIndex].name << ": ";
+    cin.ignore();
+    getline(cin, condition);
+    while (condition.empty()) {
+        cout << "Condition cannot be empty. Please enter a valid condition: ";
+        getline(cin, condition);
+    }
+
+    Db[patientIndex].previousConditions += (Db[patientIndex].previousConditions.empty() ? "" : ", ") + condition; // Append the new condition to the existing conditions
+    utils::Clear(); // Clear the console screen after logging condition
+    cout << "==================================================\n";
+    cout << "Condition logged successfully for " << Db[patientIndex].name<< ".\n";
+    cout << "--------------------------------------------------\n";
+    cout << "Updated conditions for " << Db[patientIndex].name << ": "
+         << Db[patientIndex].previousConditions << "\n"; // Display updated conditions
+    cout << "==================================================\n";
+    cout << "press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear();
+}
+
+void clearLogs(Patient Db[], int& patientIndex) {
+    utils::Clear(); // Clear the console screen before clearing logs
+    if (patientIndex < 0 || patientIndex >= MAX_PATIENTS || Db[patientIndex].name.empty()) {
+        cout << "Invalid patient index.\n";
+        cout << "Press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
+        return; // Return early if the index is invalid
+    }
+    cout << "CLEAR LOGS FOR PATIENT\n";
+    cout << "==================================================\n";
+    cout << "Are you sure you want to clear all previous conditions for " << Db[patientIndex].name << "? (Y/N): ";
+    char confirmClear;
+    cin >> confirmClear;
+    confirmClear = toupper(confirmClear); // Convert to uppercase for consistency
+    if (confirmClear != 'Y') {
+        cout << "Clearing logs canceled.\n";
+        cout << "==================================================\n";
+        cout << "Press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear(); // Clear the console screen after displaying the message
+        return; // Return early if the user cancels
+    }
+    Db[patientIndex].previousConditions.clear(); // Clear the previous conditions
+    cout << "==================================================\n";
+    cout << "All previous conditions for " << Db[patientIndex].name << " have been cleared.\n";
+    cout << "==================================================\n";
+    cout << "Press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear(); // Clear the console screen after clearing logs
+}
+
+//
+void deletePatient(Patient Db[], int& numpatients, int patientIndex) {
+    utils::Clear(); // Clear the console screen before deleting a patient
+    if (patientIndex < 0 || patientIndex >= numpatients || Db[patientIndex].name.empty()) {
+        cout << "Invalid patient index.\n";
+        cout << "Press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear();
+        return; // Return early if the index is invalid
+    }
+    cout << "DELETE PATIENT RECORD\n";
+    cout << "==================================================\n";
+    cout << "Are you sure you want to delete the record of " << Db[patientIndex].name << "? (Y/N): ";
+    char confirmDelete;
+    cin >> confirmDelete;
+    confirmDelete = toupper(confirmDelete); // Convert to uppercase for consistency
+    if (confirmDelete != 'Y') {
+        cout << "Deletion canceled.\n";
+        cout << "==================================================\n";
+        cout << "Press Enter to continue...";
+        utils::holdc(); // Wait for user input before clearing the screen
+        utils::Clear(); // Clear the console screen after displaying the message
+        return; // Return early if the user cancels
+    }
+    // Shift remaining patients down in the array
+    for (int i = patientIndex; i < numpatients - 1; ++i) {
+        Db[i] = Db[i + 1];
+    }
+    --numpatients; // Decrease the number of patients
+    cout << "==================================================\n";
+    cout << "Patient record deleted successfully.\n";
+    cout << "==================================================\n";
+    cout << "Press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen
+    utils::Clear(); // Clear the console screen after deleting a patient
+}
+
+// Function to add a new patient to the database
+void editPatient(Patient Db[], int& patientIndex) {
+    utils::Clear(); // Clear the console screen before editing
+    cout << "EDIT PATIENT RECORD\n";
+    cout << "==================================================\n";
+    const Patient& patient = Db[patientIndex];
+    cout << "=================== PREVIOUS DETAILS ==================\n";
+    cout << "Name:         " << patient.name << "\n";
+    cout << "Age:          " << patient.age << " years\n";
+    cout << "gender:       " << patient.gender << "\n";
+    cout << "Blood Type:   " << patient.bloodType << "\n";
+    cout << "Weight:       " << patient.weight << " kg\n";
+    cout << "Phone Number: " << patient.phoneNumber << "\n";
+    // Convert timestamp to readable format
+    char buffer[80];
+    tm* timeinfo = localtime(&patient.timestamp);
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+    cout << "Registry Date: " << buffer << "\n";
+    cout << "=====================================================\n";
+    cout << "Enter new details for the patient:\n";
+    // Prompt for new details
+    string new_name, new_bloodType, new_phoneNumber;
+    float new_age, new_weight;
+    char newGender;
+
+    // name
+    cout << "Enter new patient name: ";
+    cin.ignore(); // Clear the newline character from the input buffer
+    getline(cin, new_name); // Use getline to allow spaces in the name
+    Db[patientIndex].name = new_name;
+
+    // age
+    cout << "Enter new age: ";
+    cin.ignore(); // Clear the newline character from the input buffer
+    cin >> new_age; // Use cin to read the age
+    Db[patientIndex].age = new_age;
+
+    // weight
+    cout << "Enter new weight: ";
+    cin.ignore(); // Clear the newline character from the input buffer
+    cin >> new_weight; // Use cin to read the weight
+    Db[patientIndex].weight = new_weight;
+
+    // gender
+    cout << "Enter new gender (M/F): ";
+    cin >> newGender; // Use cin to read
+    newGender = toupper(newGender); // Convert to uppercase
+    while (newGender != 'M' && newGender != 'F') {
+        cout << "Invalid input. Please enter M or F : ";
+        cin >> newGender; // Read again
+        newGender = toupper(newGender); // Convert to uppercase
+    }
+    Db[patientIndex].gender = newGender; // Update
+
+    // blood type
+    cout << "Enter new blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+    cin.ignore(); // Clear the newline character from the input buffer
+    getline(cin, new_bloodType); // Use getline to allow spaces in the blood type and 
+    while (!utils::isValidBloodType(new_bloodType)) {
+        cout << "Invalid blood type. Please enter a valid type: ";
+        getline(cin, new_bloodType);
+        for (char &c : new_bloodType) c = toupper(c); // Convert to uppercase
+    }
+    Db[patientIndex].bloodType = new_bloodType; // Update the blood type
+
+    // phone number
+    cout << "Enter new phone number: ";
+    cin.ignore(); // Clear the newline character from the input buffer
+    getline(cin, new_phoneNumber); // Use getline to allow spaces in the phone number
+    while (!utils::isValidPhoneNumber(new_phoneNumber)) {
+        cout << "Invalid phone number. Please enter a valid number: ";
+        getline(cin, new_phoneNumber);
+    }
+    Db[patientIndex].phoneNumber = new_phoneNumber; // Update the phone number
+    // Display the updated patient record
+    cout << "-------------------------\n";
+    utils::Clear(); // Clear the console screen after editing
+    cout << "===================================================\n";
+    cout << "patient "<<Db[patientIndex].name<<"'s record updated successfully.\n";
+    cout << "===================================================\n";
+    cout << "Press Enter to continue...";
+    utils::holdc(); // Wait for user input before clearing the screen   
+    utils::Clear(); // Clear the console screen after displaying the updated record
+    return; // Return to the previous menu
+}
+
+// Function to display patient details and manage actions
+void displayPatientDetails(Patient Db[], int& patientIndex) {
+    utils::Clear(); // Clear the console screen before displaying patient details
+    if (patientIndex < 0 || patientIndex >= MAX_PATIENTS) {// Check if the index is valid
         cout << "Invalid patient index.\n";
         return;
     }
@@ -148,11 +354,11 @@ void displayPatientDetails(const Patient Db[], int patientIndex) {
     int choice;
     do {
         cout << "Actions:\n";
-        cout <<"1. log conditions for "<<patient.name;
-        cout <<"2. clear "<<patient.name<<"'s condition log";
-        cout <<"3. edit "<<patient.name<< "'s profile";
-        cout <<"4. delete "<<patient.name<<"'s profile from the system";
-        cout <<"0. exit and go back to Manage";
+        cout <<"1. log conditions for "<<patient.name <<"\n";
+        cout <<"2. clear "<<patient.name<<"'s condition log"<<"\n";
+        cout <<"3. edit "<<patient.name<< "'s profile"<<"\n";
+        cout <<"4. delete "<<patient.name<<"'s profile from the system"<<"\n";
+        cout <<"0. exit and go back to Manage"<< "\n";
         cout <<"Enter your choice:> ";
 
         while (!(cin >> choice)) {
@@ -164,30 +370,38 @@ void displayPatientDetails(const Patient Db[], int patientIndex) {
         switch (choice){
         case 1:
             // log conditions function
+            logpatientcondition(Db, patientIndex);
             break;
         case 2:
             // clear logs func
+            clearLogs(Db, patientIndex);
             break;
         case 3:
-            // edit patient function
+            // edit patient
+            editPatient(Db,patientIndex);
             break;
         case 4:
             // delete patient function
-            break;
+            deletePatient(Db, numpatients, patientIndex);
+            return;
         case 0:
+            utils::Clear(); // Clear the console screen before returning to the previous menu
             break;
         default:
             break;
         }
 
     } while (choice != 0);
-    cout << "Press Enter to continue...\n";
-    utils::holdc(); // Wait for user input before clearing the screen
-
+    // cout << "Press Enter to continue...\n";
+    // utils::holdc(); // Wait for user input before clearing the screen
+    // utils::Clear(); // Clear the console screen after displaying patient details
+    return; // Return to the previous menu
 }
 
-
-void findPatients(const Patient Db[], int numpatients, int searchType) {
+// Function to find patients by name or phone number
+void findPatients(Patient Db[], int numpatients, int searchType) {
+    utils::Clear(); // Clear the console screen before searching
+    cout << "=============== SEARCH PATIENTS ================\n";
     bool found = false;
     if (numpatients == 0) {
         cout << "Database is empty. Cannot search.\n";
@@ -199,6 +413,7 @@ void findPatients(const Patient Db[], int numpatients, int searchType) {
     string searchStr = ""; // Initialize searchStr to an empty string
     string normalizedSearch;// For phone number search, we will normalize the input
     int choice;
+    int patientIndex;
     switch (searchType) {
         case 1: // Search by name
             cout << "Enter patient name to search: ";
@@ -207,42 +422,49 @@ void findPatients(const Patient Db[], int numpatients, int searchType) {
             // Convert searchStr to lowercase for case-insensitive comparison
             for (char &c : searchStr) c = tolower(c);
             utils::Clear(); // Clear the console screen before displaying results
-            cout << "SEARCH RESULTS\n";
-            cout << "==================================================\n";
+            cout << "================== SEARCH RESULTS ==================\n";
             cout << "Searching for patients with name containing: " << searchStr << "\n";
+
+            // Loop through the database to find matching patients
             for (int i = 0; i < numpatients; ++i) {
                 string patientNameLower = Db[i].name;
                 // Convert patient name to lowercase for case-insensitive comparison
                 for (char &c : patientNameLower) c = tolower(c);
                 if (patientNameLower.find(searchStr) != string::npos) {
                     cout << "--------------------------------------------------\n";
-                    cout << "PATIENT #" << (i + 1) << "\n";
-                    cout << "Name:       " << Db[i].name << "\n";
-                    cout << "Age:        " << Db[i].age << " years\n";
-                    cout << "Gender:     " << Db[i].gender << "\n";
-                    cout << "Blood Type: " << Db[i].bloodType << "\n";
-                    cout << "Phone:      " << Db[i].phoneNumber << "\n";
+                    cout << "PATIENT #" << (i + 1) << "  ";
+                    cout << "Name: " << Db[i].name << "   ";
+                    cout << "Age: " << Db[i].age << " years  ";
+                    cout << "Gender: " << Db[i].gender << "  ";
+                    cout << "Blood Type: " << Db[i].bloodType << "  ";
+                    cout << "Phone: " << Db[i].phoneNumber << "   \n";
                     cout << "--------------------------------------------------\n";
-                    found = true;
-                    cout << "==================================================\n";
-                    cout << "Select Patient from the search results...\n";
-                    cout << "Enter the patient number (1 to " << numpatients << ") to view details: ";
-                    
-                    int choice;
-                    while (!(cin >> choice) || choice < 1 || choice > numpatients) {
-                        cout << "Invalid input. Please enter a number between 1 and " << numpatients << ": ";
-                        cin.clear();
-                        cin.ignore(10000, '\n');
-                    }
-                    int patientIndex = choice - 1; // Convert to zero-based index
-
-                    displayPatientDetails(Db,patientIndex);
-
+                    found = true; // Set found to true if a match is found
                 }
             }
             if (!found) {
+                cout << "--------------------------------------------------\n";
                 cout << "No patients found with the name containing: " << searchStr << "\n";
+                cout << "==================================================\n";
+                cout << "Press Enter to continue...\n";
+                utils::holdc(); // Wait for user input before clearing the screen
+                utils::Clear(); // Clear the console screen after displaying results
+                return; // Return early if no patients found
             }
+            // Prompt the user to select a patient from the search results
+            cout << "==================================================\n";
+            cout << "Select Patient from the search results...\n"; // Prompt the user to select a patient from the search results
+            cout << "Enter the patient number (1 to " << numpatients << ") to view details: ";
+            // Input validation for patient selection
+            
+            while (!(cin >> choice) || choice < 1 || choice > numpatients) {
+                cout << "Invalid input. Please enter a number between 1 and " << numpatients << ": ";
+                cin.clear();
+                cin.ignore(10000, '\n');
+            }
+            patientIndex = choice - 1; // Convert to zero-based index
+            // Display the details of the selected patient
+            displayPatientDetails(Db,patientIndex);
             break;
 
         case 2:// search by phone number
@@ -265,39 +487,49 @@ void findPatients(const Patient Db[], int numpatients, int searchType) {
                 }
                 // Check if the search string is contained within the phone number
                 if (normalizedDbPhone.find(normalizedSearch) != string::npos) {
-                    cout << "PATIENT #" << (i + 1) << "\n";
-                    cout << "Name:       " << Db[i].name << "\n";
-                    cout << "Age:        " << Db[i].age << " years\n";
-                    cout << "Gender:     " << Db[i].gender << "\n";
-                    cout << "Blood Type: " << Db[i].bloodType << "\n";
-                    cout << "Phone:      " << Db[i].phoneNumber << "\n";
                     cout << "--------------------------------------------------\n";
-                    found = true;
-                    cout << "==================================================\n";
-                    cout << "Select Patient from the search results...\n";
-                    cout << "Enter the patient number (1 to " << numpatients << ") to view details: ";
-                    int choice;
-                    while (!(cin >> choice) || choice < 1 || choice > numpatients) {
-                        cout << "Invalid input. Please enter a number between 1 and " << numpatients << ": ";
-                        cin.clear();
-                        cin.ignore(10000, '\n');
-                    }
-                    int patientIndex = choice - 1; // Convert to zero-based index
-
-                    utils::Clear();
-                    displayPatientDetails(Db,patientIndex);
-                    return ; // Return the index of the selected patient
+                    cout << "PATIENT #" << (i + 1) << "  ";
+                    cout << "Name: " << Db[i].name << "   ";
+                    cout << "Age: " << Db[i].age << " years  ";
+                    cout << "Gender: " << Db[i].gender << "  ";
+                    cout << "Blood Type: " << Db[i].bloodType << "  ";
+                    cout << "Phone: " << Db[i].phoneNumber << "   \n";
+                    cout << "--------------------------------------------------\n";
+                    found = true; // Set found to true if a match is found
                 }
             }
             if (!found) {
+                cout << "--------------------------------------------------\n";
                 cout << "No patients found with the phone number containing: " << searchStr << "\n";
+                cout << "==================================================\n";
+                cout << "Press Enter to continue...\n";
+                utils::holdc(); // Wait for user input before clearing the screen
+                utils::Clear(); // Clear the console screen after displaying 
+                return; // Return early if no patients found
             }
+            // Prompt the user to select a patient from the search results
+            cout << "==================================================\n";
+            cout << "Select Patient from the search results...\n"; // Prompt the user to select a patient from the search results
+            cout << "Enter the patient number (1 to " << numpatients << ") to view details: ";
+            // Input validation for patient selection
+            
+            while (!(cin >> choice) || choice < 1 || choice > numpatients) {
+                cout << "Invalid input. Please enter a number between 1 and " << numpatients << ": ";
+                cin.clear();
+                cin.ignore(10000, '\n');
+            }
+            patientIndex = choice - 1; // Convert to zero-based index
+            // Display the details of the selected patient
+            displayPatientDetails(Db,patientIndex);
             return;
         default:
-            return ; // Return 0 if no valid search type is provided
+            cout << "Invalid search type selected.\n";
+            cout << "Press Enter to continue...\n";
+            utils::holdc(); // Wait for user input before clearing the screen
+            utils::Clear(); // Clear the console screen after displaying results
+            return ;
         }
 }
-
 
 // ADD PATIENT FUNCTION
 void addPatient(Patient Db[], int& numpatients) {
@@ -404,8 +636,9 @@ void addPatient(Patient Db[], int& numpatients) {
     utils::Clear();
 }
 
-// menus
+// MENUS
 void manageMenu(){
+    utils::Clear(); // Clear the console screen before displaying the manage menu
     int choice;
     do {
         cout << "=============== MANAGE PATIENT RECORDS ================\n";
@@ -451,6 +684,7 @@ void manageMenu(){
 };
 
 void mainMenu(){
+    
     int choice;
     do {
         cout << "=============== MAIN MENU ================\n";
@@ -474,6 +708,7 @@ void mainMenu(){
                 addPatient(Db, numpatients); // Call the add patient function
                 break;
             case 3:
+                utils::Clear();
                 break;
             case 0:
                 utils::Clear();
@@ -488,15 +723,14 @@ void mainMenu(){
                 utils::Clear();
         }
     } while (choice != 0);
-}; // Forward declaration of main menu function
+};
 
 //  MAIN FUNCTION
 int main() {
     utils::Clear();
     // Display welcome message
-    cout << "==========================================\n";
     cout << "WELCOME TO THE PATIENT MANAGEMENT SYSTEM!\n";
-    cout << "==========================================\n";
+    cout << "\n";
     mainMenu(); // Call the main menu function
     // utils::Clear(); // Clear the console screen before exiting
     return 0;
