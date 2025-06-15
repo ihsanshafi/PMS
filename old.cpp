@@ -29,16 +29,15 @@ const int MAX_PATIENTS = 100; // Maximum number of patients in the database
 namespace utils {
     // CONSOLE CLEAR FUNCTION
     void Clear(){
-    #if defined _WIN32
-        system("cls");
-    #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
-        system("clear");
-        //std::cout<< u8"\033[2J\033[1;1H"; //Using ANSI Escape Sequences
-    #elif defined (__APPLE__)
-        system("clear");
-    #endif
+        #if defined _WIN32
+            system("cls");
+        #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
+            system("clear");
+            //std::cout<< u8"\033[2J\033[1;1H"; //Using ANSI Escape Sequences
+        #elif defined (__APPLE__)
+            system("clear");
+        #endif
     }
-    
     // Function to hold the console until a key is pressed
     void holdc() {
         #if defined _WIN32
@@ -49,7 +48,6 @@ namespace utils {
         #endif
     }
     // Function to validate phone number (basic validation)
-    // Checks if the phone number contains only digits, spaces, and common symbols
     bool isValidPhoneNumber(const string& phone) {
         if (phone.empty()) return false;
         for (char c : phone) {
@@ -59,7 +57,6 @@ namespace utils {
         }
         return true;
     }
-
     // Function to validate blood type
     bool isValidBloodType(const string& bloodType) {
         const string validTypes[] = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
