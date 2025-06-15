@@ -2,4 +2,4 @@
 !*.cpp
 !*.txt
 !.gitignore
-/.vscode
+.vscode
