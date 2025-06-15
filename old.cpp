@@ -470,12 +470,17 @@ void searchPatients(const Patient Db[], int numpatients) {
             cout << "Enter patient name to search: ";
             cin.ignore();
             getline(cin, searchStr);
+            // Convert searchStr to lowercase for case-insensitive comparison
+            for (char &c : searchStr) c = tolower(c);
             utils::Clear(); // Clear the console screen before displaying results
             cout << "SEARCH RESULTS\n";
             cout << "==================================================\n";
             cout << "Searching for patients with name containing: " << searchStr << "\n";
             for (int i = 0; i < numpatients; ++i) {
-                if (Db[i].name.find(searchStr) != string::npos) {
+                string patientNameLower = Db[i].name;
+                // Convert patient name to lowercase for case-insensitive comparison
+                for (char &c : patientNameLower) c = tolower(c);
+                if (patientNameLower.find(searchStr) != string::npos) {
                     cout << "--------------------------------------------------\n";
                     cout << "PATIENT #" << (i + 1) << "\n";
                     cout << "Name:       " << Db[i].name << "\n";
