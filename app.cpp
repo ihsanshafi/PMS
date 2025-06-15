@@ -38,6 +38,7 @@ namespace utils {
         system("clear");
     #endif
     }
+    
     // Function to hold the console until a key is pressed
     void holdc() {
         #if defined _WIN32
