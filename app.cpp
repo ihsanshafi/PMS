@@ -381,28 +381,29 @@ void displayPatientDetails(Patient Db[], int& patientIndex) {
         return;
     }
     const Patient& patient = Db[patientIndex];
-    cout << "=================== PATIENT DETAILS ==================\n";
-    cout << "Name:         " << patient.name << "\n";
-    cout << "Age:          " << patient.age << " years\n";
-    cout << "gender:       " << patient.gender << "\n";
-    cout << "Blood Type:   " << patient.bloodType << "\n";
-    cout << "Weight:       " << patient.weight << " kg\n";
-    cout << "Phone Number: " << patient.phoneNumber << "\n";
-    // Convert timestamp to readable format
-    char buffer[80];
-    tm* timeinfo = localtime(&patient.timestamp);
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
-    cout << "Registry Date: " << buffer << "\n";
-    cout << "=====================================================\n";
-    // Display previous conditions if any
-    if (!patient.previousConditions.empty()) {
-        cout << "Previous Conditions: \n" << patient.previousConditions << "\n";
-    } else {
-        cout << "No previous conditions recorded.\n";
-    }
-    cout << "=====================================================\n";
+
     int choice;
     do {
+        cout << "=================== PATIENT DETAILS ==================\n";
+        cout << "Name:         " << patient.name << "\n";
+        cout << "Age:          " << patient.age << " years\n";
+        cout << "gender:       " << patient.gender << "\n";
+        cout << "Blood Type:   " << patient.bloodType << "\n";
+        cout << "Weight:       " << patient.weight << " kg\n";
+        cout << "Phone Number: " << patient.phoneNumber << "\n";
+        // Convert timestamp to readable format
+        char buffer[80];
+        tm* timeinfo = localtime(&patient.timestamp);
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+        cout << "Registry Date: " << buffer << "\n";
+        cout << "=====================================================\n";
+        // Display previous conditions if any
+        if (!patient.previousConditions.empty()) {
+            cout << "Previous Conditions: \n" << patient.previousConditions << "\n";
+        } else {
+            cout << "No previous conditions recorded.\n";
+        }
+        cout << "=====================================================\n";
         cout << "Actions:\n";
         cout <<"1. log conditions for "<<patient.name <<"\n";
         cout <<"2. Clear "<<patient.name<<"'s condition log"<<"\n";
