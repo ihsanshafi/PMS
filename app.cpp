@@ -139,32 +139,63 @@ void logpatientcondition(Patient Db[], int patientIndex) {
     cout << "==================================================\n";
 
     string condition;
-    cout << "Enter the condition to log for " << Db[patientIndex].name << ": ";
-    cin.ignore(); // Clear the input buffer before getline
-    getline(cin, condition);
-    while (condition.empty()) {
-        cout << "Condition cannot be empty. Please enter a valid condition: ";
+    string newConditions = "";//temporary variable to hold new conditions
+    char choice;
+    do{
+        cout << "Enter the condition to log for " << Db[patientIndex].name << ": ";
         cin.ignore(); // Clear the input buffer before getline
         getline(cin, condition);
+        while (condition.empty()) {
+            cout << "Condition cannot be empty. Please enter a valid condition: ";
+            cin.ignore(); // Clear the input buffer before getline
+            getline(cin, condition);
+        }
+        // Get the current date and time
+        time_t now = time(nullptr);
+        char buffer[80];
+        tm* timeinfo = localtime(&now);
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+
+        // Append the condition with the log date
+        string conditionWithDate = condition + " (Logged on: " + buffer + ")";
+        newConditions += (newConditions.empty() ? std::string("") : std::string("\n")) + ">> " + conditionWithDate;
+        cout << "---------------------------------------------------\n";
+        cout << "log added successfully.\n";
+        cout << "---------------------------------------------------\n";
+        cout << "Do you want to add another condition? (Y/N): ";
+        cin >> choice;
+        choice = toupper(choice);
+        while (choice != 'Y' && choice != 'N') {
+            cout << "Invalid input. Please enter Y or N: ";
+            cin >> choice;
+            choice = toupper(choice); // Convert to uppercase for consistency
+        }
+    } while (choice == 'Y');
+
+    cout << "Do you want to save the logged conditions? (Y/N): ";
+    cin >> choice;
+    choice = toupper(choice);
+    while (choice != 'Y' && choice != 'N') {
+        cout << "Invalid input. Please enter Y or N: ";
+        cin >> choice;
+        choice = toupper(choice); // Convert to uppercase for consistency
+    }
+    if (choice == 'Y') {
+        Db[patientIndex].previousConditions += (Db[patientIndex].previousConditions.empty() ? "" : "\n") + newConditions;
+        utils::Clear(); // Clear the console screen after saving conditions
+        cout << "==================================================\n";
+        cout << "Conditions logged successfully for " << Db[patientIndex].name << ".\n";
+        cout << "--------------------------------------------------\n";
+        cout << "Updated conditions for " << Db[patientIndex].name << ": \n";
+        cout << Db[patientIndex].previousConditions << "\n"; // Display updated conditions
+        cout << "==================================================\n";
+    } else {
+        utils::Clear(); // Clear the console screen after canceling
+        cout << "==================================================\n";
+        cout << "Logging canceled. No changes were made.\n";
+        cout << "==================================================\n";
     }
 
-    // Get the current date and time
-    time_t now = time(nullptr);
-    char buffer[80];
-    tm* timeinfo = localtime(&now);
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
-
-    // Append the condition with the log date
-    string conditionWithDate = condition + " (Logged on: " + buffer + ")";
-    Db[patientIndex].previousConditions += (Db[patientIndex].previousConditions.empty() ? std::string("") : std::string("\n")) + ">> " + conditionWithDate;
-    
-    utils::Clear(); // Clear the console screen after logging condition
-    cout << "==================================================\n";
-    cout << "Condition logged successfully for " << Db[patientIndex].name<< ".\n";
-    cout << "--------------------------------------------------\n";
-    cout << "Updated conditions for " << Db[patientIndex].name << ": \n";
-    cout << Db[patientIndex].previousConditions << "\n"; // Display updated conditions
-    cout << "==================================================\n";
     cout << "press Enter to continue...";
     utils::holdc(); // Wait for user input before clearing the screen
     utils::Clear();
