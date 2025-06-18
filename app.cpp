@@ -605,66 +605,90 @@ void addPatient(Patient Db[], int& numpatients) {
         Patient newPatient;
 
         cout << "=============== REGISTER NEW PATIENT ================\n";
-        // cout << "Enter '0' at any point to cancel and go back to the main menu.\n";
+        cout << "Enter '0' at any point to cancel and go back to the main menu.\n";
         cout << "-----------------------------------------------------\n";
+        
         // Name input
-        cout << "Enter Patient name: ";
-        cin.ignore(); // Clear the input buffer
-        getline(cin, newPatient.name);
-        while (newPatient.name.empty()) {
-            cout << "Name cannot be empty. Please enter a valid name: ";
+        while (true) {
+            cout << "Enter Patient name: ";
+            cin.ignore(); // Clear the input buffer
             getline(cin, newPatient.name);
-            // if (newPatient.name == "0") return; // Allow user to cancel
+            if (newPatient.name == "0") {
+                utils::Clear(); 
+                return; // Cancel registration
+            }
+            if (!newPatient.name.empty()) break; // Valid input
+            cout << "Name cannot be empty. Please try again.\n";
         }
 
         // Age input
-        cout << "Enter Patient age: ";
-        while (!(cin >> newPatient.age) || newPatient.age <= 0) {
-            cout << "Invalid age. Please enter a positive number: ";
-            cin.clear();
-            cin.ignore(10000, '\n'); // Clear the input buffer
-            // if (cin.peek() == '0') return; // Allow user to cancel
+        while (true) {
+            cout << "Enter Patient age: ";
+            if (!(cin >> newPatient.age) || newPatient.age < 0) {
+                cin.clear();
+                cin.ignore(10000, '\n'); // Clear the input buffer
+                cout << "Invalid age. Please enter a positive number or '0' to cancel.\n";
+                continue;
+            }
+            if (newPatient.age == 0){
+                utils::Clear(); 
+                return; // Cancel registration
+            }
+            break; // Valid input
         }
 
         // Weight input
-        cout << "Enter patient weight (kg): ";
-        while (!(cin >> newPatient.weight) || newPatient.weight <= 0) {
-            cout << "Invalid weight. Please enter a positive number: ";
-            cin.clear();
-            cin.ignore(10000, '\n'); // Clear the input buffer
-            // if (cin.peek() == '0') return; // Allow user to cancel
+        while (true) {
+            cout << "Enter patient weight (kg): ";
+            if (!(cin >> newPatient.weight) || newPatient.weight < 0) {
+                cin.clear();
+                cin.ignore(10000, '\n'); // Clear the input buffer
+                cout << "Invalid weight. Please enter a positive number or '0' to cancel.\n";
+                continue;
+            }
+            if (newPatient.weight == 0) {
+                utils::Clear(); 
+                return; // Cancel registration
+            }
+            break; // Valid input
         }
-
         // Gender input
-        cout << "Enter gender (M/F): ";
-        cin >> newPatient.gender;
-        newPatient.gender = toupper(newPatient.gender);
-        while (newPatient.gender != 'M' && newPatient.gender != 'F') {
-            cout << "Invalid gender. Please enter M or F : ";
+        while (true) {
+            cout << "Enter gender (M/F): ";
             cin >> newPatient.gender;
-            // if (newPatient.name == "0") return; // Allow user to cancel
             newPatient.gender = toupper(newPatient.gender);
+            if (newPatient.gender == '0') {
+                utils::Clear(); 
+                return; // Cancel registration
+            }
+            if (newPatient.gender == 'M' || newPatient.gender == 'F') break; // Valid input
+            cout << "Invalid gender. Please enter M or F.\n";
         }
 
         // Blood Type input
-        cout << "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
-        cin >> newPatient.bloodType;
-        // if (newPatient.name == "0") return; // Allow user to cancel
-        for (char &c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
-        while (!utils::isValidBloodType(newPatient.bloodType)) {
-            cout << "Invalid blood type. Please enter a valid type: "; // Prompt for valid blood type
-            cin >> newPatient.bloodType;// Read the input
-            for (char &c : newPatient.bloodType) c = toupper(c);// Convert to uppeercase
+        while (true) {
+            cout << "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+            cin >> newPatient.bloodType;
+            if (newPatient.bloodType == "0") {
+                utils::Clear(); 
+                return; // Cancel registration
+            }
+            for (char &c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
+            if (utils::isValidBloodType(newPatient.bloodType)) break; // Valid input
+            cout << "Invalid blood type. Please try again.\n";
         }
 
-        // Phone Number
-        cout << "Enter phone number: ";
-        cin.ignore(); // Clear the input buffer
-        getline(cin, newPatient.phoneNumber);
-        while (!utils::isValidPhoneNumber(newPatient.phoneNumber)) {
-            cout << "Invalid phone number. Please enter a valid number: ";
+        // Phone Number input
+        while (true) {
+            cout << "Enter phone number: ";
+            cin.ignore(); // Clear the input buffer
             getline(cin, newPatient.phoneNumber);
-            // if (newPatient.name == "0") return; // Allow user to cancel
+            if (newPatient.phoneNumber == "0") {
+                utils::Clear(); 
+                return; // Cancel registration
+            }
+            if (utils::isValidPhoneNumber(newPatient.phoneNumber)) break; // Valid input
+            cout << "Invalid phone number. Please try again.\n";
         }
 
         // Initialize previous health conditions as empty
