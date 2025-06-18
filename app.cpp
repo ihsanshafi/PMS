@@ -309,13 +309,11 @@ void editPatient(Patient Db[], int& patientIndex) {
 
     // age
     cout << "Enter new age: ";
-    cin.ignore(); // Clear the newline character from the input buffer
     cin >> new_age; // Use cin to read the age
     Db[patientIndex].age = new_age;
 
     // weight
     cout << "Enter new weight: ";
-    cin.ignore(); // Clear the newline character from the input buffer
     cin >> new_weight; // Use cin to read the weight
     Db[patientIndex].weight = new_weight;
 
@@ -344,7 +342,6 @@ void editPatient(Patient Db[], int& patientIndex) {
 
     // phone number
     cout << "Enter new phone number: ";
-    cin.ignore(); // Clear the newline character from the input buffer
     getline(cin, new_phoneNumber); // Use getline to allow spaces in the phone number
     while (!utils::isValidPhoneNumber(new_phoneNumber)) {
         cout << "Invalid phone number. Please enter a valid number: ";
