@@ -115,8 +115,7 @@ namespace utils {
 // log patient condition
 void logpatientcondition(Patient Db[], int patientIndex) {
     utils::Clear();
-    cout << "LOG PATIENT CONDITION\n";
-    cout << "==================================================\n";
+    cout << "================= LOG PATIENT CONDITION ==================\n";
 
     if (patientIndex < 0 || patientIndex >= numpatients || Db[patientIndex].name.empty()) {
         cout << "Invalid patient index.\n";
@@ -128,15 +127,16 @@ void logpatientcondition(Patient Db[], int patientIndex) {
 
 
     utils::Clear(); // Clear the console screen before logging condition
-    cout << "--------------------------------------------------\n";
+    cout << "==================================================\n";
     cout << "Logging condition for patient #" << patientIndex << ": " << "\n";
     cout << "Name:          " << Db[patientIndex].name << "\n";
     cout << "Age:           " << Db[patientIndex].age << " years\n";
     cout << "Weight:        " << Db[patientIndex].weight << " kg\n";
     cout << "Blood Type:    " << Db[patientIndex].bloodType << "\n\n";
+    cout << "--------------------------------------------------\n";
     cout << Db[patientIndex].name << "'s previous conditions: \n";
     cout << (Db[patientIndex].previousConditions.empty() ? "None" : Db[patientIndex].previousConditions) << "\n"; // Display previous conditions if any
-    cout << "--------------------------------------------------\n";
+    cout << "==================================================\n";
 
     string condition;
     cout << "Enter the condition to log for " << Db[patientIndex].name << ": ";
@@ -156,7 +156,7 @@ void logpatientcondition(Patient Db[], int patientIndex) {
 
     // Append the condition with the log date
     string conditionWithDate = condition + " (Logged on: " + buffer + ")";
-    Db[patientIndex].previousConditions += (Db[patientIndex].previousConditions.empty() ? "" : "\n") + conditionWithDate;
+    Db[patientIndex].previousConditions += (Db[patientIndex].previousConditions.empty() ? std::string("") : std::string("\n")) + ">> " + conditionWithDate;
     
     utils::Clear(); // Clear the console screen after logging condition
     cout << "==================================================\n";
@@ -180,13 +180,14 @@ void clearLogs(Patient Db[], int& patientIndex) {
         utils::Clear();
         return; // Return early if the index is invalid
     }
-    cout << "CLEAR LOGS FOR PATIENT\n";
-    cout << "==================================================\n";
+    cout << "============== CLEAR LOGS FOR " << Db[patientIndex].name << " ====================\n";
     cout << "Are you sure you want to clear all previous conditions for " << Db[patientIndex].name << "? (Y/N): ";
     char confirmClear;
     cin >> confirmClear;
     confirmClear = toupper(confirmClear); // Convert to uppercase for consistency
     if (confirmClear != 'Y') {
+        utils::Clear(); // Clear the console screen before displaying the message
+        cout << "==================================================\n";
         cout << "Clearing logs canceled.\n";
         cout << "==================================================\n";
         cout << "Press Enter to continue...";
@@ -195,6 +196,7 @@ void clearLogs(Patient Db[], int& patientIndex) {
         return; // Return early if the user cancels
     }
     Db[patientIndex].previousConditions.clear(); // Clear the previous conditions
+    utils::Clear(); // Clear the console screen after clearing logs
     cout << "==================================================\n";
     cout << "All previous conditions for " << Db[patientIndex].name << " have been cleared.\n";
     cout << "==================================================\n";
@@ -213,13 +215,14 @@ void deletePatient(Patient Db[], int& numpatients, int patientIndex) {
         utils::Clear();
         return; // Return early if the index is invalid
     }
-    cout << "DELETE PATIENT RECORD\n";
-    cout << "==================================================\n";
+    cout << "================ DELETE PATIENT ===================\n";
     cout << "Are you sure you want to delete the record of " << Db[patientIndex].name << "? (Y/N): ";
     char confirmDelete;
     cin >> confirmDelete;
     confirmDelete = toupper(confirmDelete); // Convert to uppercase for consistency
     if (confirmDelete != 'Y') {
+        utils::Clear(); // Clear the console screen before displaying the message
+        cout << "==================================================\n";
         cout << "Deletion canceled.\n";
         cout << "==================================================\n";
         cout << "Press Enter to continue...";
@@ -233,6 +236,7 @@ void deletePatient(Patient Db[], int& numpatients, int patientIndex) {
     }
     --numpatients; // Decrease the number of patients
     patientIndex = -1; // Reset patientIndex to -1 after deletion // Invalidate the patient index
+    utils::Clear(); // Clear the console screen after deleting a patient
     cout << "==================================================\n";
     cout << "Patient record deleted successfully.\n";
     cout << "==================================================\n";
@@ -699,8 +703,7 @@ void addPatient(Patient Db[], int& numpatients) {
 //  Function to clear the entire database
 void clearDatabase(Patient Db[], int& numpatients) {
     utils::Clear();
-    cout << "CLEAR DATABASE\n";
-    cout << "==================================================\n";
+    cout << "================= CLEAR DATABASE =====================\n";
     if (numpatients == 0) {
         cout << "Database is already empty.\n";
     } else {
