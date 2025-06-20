@@ -10,7 +10,7 @@
 #include <cctype> // for toupper()
 #include <limits> // for numeric_limits
 #include <ctime>
-
+#include <vector> // for vector operations
 using namespace std;
 //  Define the Patient structure
 struct Patient {
@@ -406,6 +406,7 @@ void editPatient(Patient Db[], int& patientIndex) {
         utils::Clear();
     } while (choice != 0);
 }
+
 // Function to display patient details and manage actions
 void displayPatientDetails(Patient Db[], int& patientIndex) {
     utils::Clear(); // Clear the console screen before displaying patient details
@@ -486,10 +487,9 @@ void displayPatientDetails(Patient Db[], int& patientIndex) {
 
 // Function to find patients by name or phone number
 void findPatients(Patient Db[], int numpatients, int searchType) {
-    while (true){
+    while (true) {
         utils::Clear(); // Clear the console screen before searching
         cout << "=============== SEARCH PATIENTS ================\n";
-        bool found = false;
         if (numpatients == 0) {
             cout << "Database is empty. Cannot search.\n";
             cout << "==================================================\n";
@@ -498,11 +498,12 @@ void findPatients(Patient Db[], int numpatients, int searchType) {
             utils::Clear();
             return; // Return early if no patients are present
         }
+
         string searchStr = ""; // Initialize searchStr to an empty string
-        string normalizedSearch;// For phone number search, we will normalize the input
+        string normalizedSearch; // For phone number search, we will normalize the input
+        vector<int> matchIndices; // Store the actual indices of matching patients
         int choice;
         int patientIndex;
-        int matchingPatients = 0; // Count the number of matching patients
         switch (searchType) {
             case 1: // Search by name
                 cout << "Enter patient name to search: ";
@@ -520,26 +521,26 @@ void findPatients(Patient Db[], int numpatients, int searchType) {
                 utils::Clear(); // Clear the console screen before displaying results
                 cout << "================== SEARCH RESULTS ==================\n";
                 cout << "Searching for patients with name containing: " << searchStr << "\n";
-
+                cout << "====================================================\n";
                 // Loop through the database to find matching patients
                 for (int i = 0; i < numpatients; ++i) {
                     string patientNameLower = Db[i].name;
                     // Convert patient name to lowercase for case-insensitive comparison
                     for (char &c : patientNameLower) c = tolower(c);
                     if (patientNameLower.find(searchStr) != string::npos) {
-                        found = true; // Set found to true if a match is found
-                        cout << "--------------------------------------------------\n";
-                        cout << "PATIENT #" << (i + 1) << "  ";
+                        matchIndices.push_back(i); // Store the actual index of the match
+                        // Display the matching patient details
+                        cout << "MATCH #" << matchIndices.size() << "  ";
                         cout << "Name: " << Db[i].name << "   ";
                         cout << "Age: " << Db[i].age << " years  ";
                         cout << "Gender: " << Db[i].gender << "  ";
                         cout << "Blood Type: " << Db[i].bloodType << "  ";
                         cout << "Phone: " << Db[i].phoneNumber << "   \n";
                         cout << "--------------------------------------------------\n";
-                        ++matchingPatients; // Increment the count of matching patients
                     }
                 }
-                if (!found) {
+
+                if (matchIndices.empty()) {
                     cout << "==================================================\n";
                     cout << "No patients found with the name containing: " << searchStr << "\n";
                     cout << "==================================================\n";
@@ -548,29 +549,30 @@ void findPatients(Patient Db[], int numpatients, int searchType) {
                     utils::Clear(); // Clear the console screen after displaying results
                     return; // Return early if no patients found
                 }
+
                 // Prompt the user to select a patient from the search results
                 cout << "==================================================\n";
-                cout << "Select Patient from the search results...\n"; // Prompt the user to select a patient from the search results
-                cout << "Enter the patient number (1 to " << matchingPatients << ") to view details.\n";
-                cout << "Enter '0' to cancel and return to the previous menu.\n"; // Allow user to cancel selection
+                cout << "Select Patient from the search results...\n";
+                cout << "Enter the match number (1 to " << matchIndices.size() << ") to view details.\n";
+                cout << "Enter '0' to cancel and return to the previous menu.\n";
                 cout << "Enter your choice:> ";
-                // Input validation for patient selection
-                
-                while (!(cin >> choice) || choice < 0 || choice > matchingPatients) {
-                    cout << "\n Invalid input. Please enter a number between 1 and " << matchingPatients << ": ";
+
+                while (!(cin >> choice) || choice < 0 || choice > matchIndices.size()) {
+                    cout << "\nInvalid input. Please enter a number between 1 and " << matchIndices.size() << ": ";
                     cin.clear();
                     cin.ignore(10000, '\n');
                 }
+
                 if (choice == 0) {
                     utils::Clear();
                     return; // Return to the previous menu
                 }
-                patientIndex = choice - 1; // Convert to zero-based index
-                // Display the details of the selected patient
-                displayPatientDetails(Db,patientIndex);
 
+                patientIndex = matchIndices[choice - 1]; // Get the actual index of the selected patient
+                displayPatientDetails(Db, patientIndex); // Pass the actual index to the display function
                 return; // Return early after displaying patient details
-            case 2:// search by phone number
+
+            case 2: // Search by phone number
                 cout << "Enter phone number to search: ";
                 cin.ignore();
                 getline(cin, searchStr);
@@ -581,7 +583,7 @@ void findPatients(Patient Db[], int numpatients, int searchType) {
                     }
                 }
                 if (normalizedSearch.empty()) {
-                    cout<< "Invalid phone number format. Please enter a valid phone number.\n";
+                    cout << "Invalid phone number format. Please enter a valid phone number.\n";
                     cout << "Press Enter to continue...\n";
                     utils::holdc(); // Wait for user input before clearing the screen
                     utils::Clear(); // Clear the console screen after displaying the message
@@ -590,6 +592,7 @@ void findPatients(Patient Db[], int numpatients, int searchType) {
                 utils::Clear(); // Clear the console screen before displaying results
                 cout << "================== SEARCH RESULTS ==================\n";
                 cout << "Searching for patients with phone number containing: " << searchStr << "\n";
+                cout << "====================================================\n";
                 for (int i = 0; i < numpatients; ++i) {
                     // Normalize the stored phone number for comparison
                     string normalizedDbPhone;
@@ -599,58 +602,58 @@ void findPatients(Patient Db[], int numpatients, int searchType) {
                         }
                     }
 
-
                     // Check if the search string is contained within the phone number
                     if (normalizedDbPhone.find(normalizedSearch) != string::npos) {
-                        found = true; // Set found to true if a match is found
-                        cout << "--------------------------------------------------\n";
-                        cout << "PATIENT #" << (i + 1) << "  ";
+                        matchIndices.push_back(i); // Store the actual index of the match
+                        // Display the matching patient details
+                        cout << "MATCH #" << matchIndices.size() << "  ";
                         cout << "Name: " << Db[i].name << "   ";
                         cout << "Age: " << Db[i].age << " years  ";
                         cout << "Gender: " << Db[i].gender << "  ";
                         cout << "Blood Type: " << Db[i].bloodType << "  ";
                         cout << "Phone: " << Db[i].phoneNumber << "   \n";
                         cout << "--------------------------------------------------\n";
-                        ++matchingPatients; // Increment the count of matching patients
                     }
                 }
-                if (!found) {
+
+                if (matchIndices.empty()) {
                     cout << "==================================================\n";
                     cout << "No patients found with the phone number containing: " << searchStr << "\n";
                     cout << "==================================================\n";
                     cout << "Press Enter to continue...\n";
                     utils::holdc(); // Wait for user input before clearing the screen
-                    utils::Clear(); // Clear the console screen after displaying 
+                    utils::Clear(); // Clear the console screen after displaying results
                     return; // Return early if no patients found
                 }
+
                 // Prompt the user to select a patient from the search results
                 cout << "==================================================\n";
-                cout << "Select Patient from the search results...\n"; // Prompt the user to select a patient from the search results
-                cout << "Enter the patient number (1 to " << matchingPatients << ") to view details.\n";
-                cout << "Enter '0' to cancel and return to the previous menu.\n"; // Allow user to cancel selection
+                cout << "Select Patient from the search results...\n";
+                cout << "Enter the match number (1 to " << matchIndices.size() << ") to view details.\n";
+                cout << "Enter '0' to cancel and return to the previous menu.\n";
                 cout << "Enter your choice:> ";
-                // Input validation for patient selection
 
-                while (!(cin >> choice) || choice < 0 || choice > matchingPatients) {
-                    cout << "\n Invalid input. Please enter a number between 1 and " << matchingPatients << ": ";
+                while (!(cin >> choice) || choice < 0 || choice > matchIndices.size()) {
+                    cout << "\nInvalid input. Please enter a number between 1 and " << matchIndices.size() << ": ";
                     cin.clear();
                     cin.ignore(10000, '\n');
                 }
+
                 if (choice == 0) {
                     utils::Clear();
                     return; // Return to the previous menu
                 }
-                patientIndex = choice - 1; // Convert to zero-based index
-                // Display the details of the selected patient
-                displayPatientDetails(Db,patientIndex);
 
+                patientIndex = matchIndices[choice - 1]; // Get the actual index of the selected patient
+                displayPatientDetails(Db, patientIndex); // Pass the actual index to the display function
                 return;
+
             default:
                 cout << "Invalid search type selected.\n";
                 cout << "Press Enter to continue...\n";
                 utils::holdc(); // Wait for user input before clearing the screen
                 utils::Clear(); // Clear the console screen after displaying results
-                return ;
+                return;
         }
     }
 }
