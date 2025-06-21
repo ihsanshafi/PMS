@@ -28,7 +28,7 @@ struct Patient {
 
 // System-wide data
 const string FILE_NAME = "patient_db"; // file name for the db
-const int MAX_PATIENTS = 100; // Maximum number of patients in the database
+const int MAX_PATIENTS = 1000; // Maximum number of patients in the database
 int numpatients = 0; // initialize number of patients.
 Patient Db[MAX_PATIENTS]; // create the Db to store the patients.
 
@@ -773,6 +773,7 @@ namespace System {
             Patient newPatient;
 
             cout << "=============== REGISTER NEW PATIENT ================\n";
+            utils::infoMsg("Available Slots: " + to_string(MAX_PATIENTS - numpatients));
             utils::infoMsg("Enter '0' at any point to cancel and go back to the main menu.");
             cout << "-----------------------------------------------------\n";
             cout << "please fill in the patient details below:\n";
@@ -956,7 +957,7 @@ namespace System {
         cout << "- Soliyana Getachew\n";
         cout << "==================================================\n";
         cout << "Patient Records Management System.\n";
-        cout << "Version: 1.0.0\n"; // Version of the system
+        cout << "Version: 2.0.0\n"; // Version of the system
         cout << "Written in C++14.\n";
         cout << "==================================================\n";
         cout << "Press Enter to return to the main menu...\n";
