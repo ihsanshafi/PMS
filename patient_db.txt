@@ -4,26 +4,30 @@ Brooks
 60
 M
 0967199593
-O+
-severe diabetes, severe indecency, severe sleep deprivation, chronic loneliness
-Bisrat
-21
-55
+O-
+>> qwertyuiop (Logged on: 2025-06-21 13:28:20)
+0
+Ihsan
+20
+65
 M
 0987654321
 O+
-severe dehydration, severe hypoglycemia, basically an idiot, dead.
-adonay
-16
+>> qwertyuiop (Logged on: 2025-06-21 16:00:50)
+1750510457
+Bisrat
+21
 57
 M
 0987654321
+O+
+
+1750516765
+Adonay
+16
+57
+M
+1234567890
 O-
 
-helina
-34
-34
-F
-0987654325
-O-
-
+1750517249
