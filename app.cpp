@@ -104,6 +104,7 @@ namespace utils {
         }
         try {
             outFile << numpatients << "\n"; // Save the number of patients
+            // cout << "Saving " << numpatients << " patients to the database...\n"; // Debug output
             for (int i = 0; i < numpatients; ++i) {
                 outFile << Db[i].name << "\n"
                         << Db[i].age << "\n"
@@ -111,8 +112,11 @@ namespace utils {
                         << Db[i].gender << "\n"
                         << Db[i].phoneNumber << "\n"
                         << Db[i].bloodType << "\n"
-                        << Db[i].previousConditions << "\n"
-                        << Db[i].timestamp << "\n";
+                        << Db[i].timestamp << "\n"
+                        << Db[i].previousConditions << "\n";
+                outFile << "---\n"; // use "---" to separate patient records
+
+                // cout << "Saved Patient #" << (i + 1) << ": " << Db[i].name << "\n";
             }
         } catch (...){
             errMsg("Error: Corrupted database file.");
@@ -129,16 +133,24 @@ namespace utils {
         }
         try{
             inFile >> numpatients;// Load the number of patients
-            inFile.ignore(); // Ignore newline after numpatients
+            // cout << "Loading " << numpatients << " patients from the database...\n"; // Debug output
+            inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore newline after numpatients
             for (int i = 0; i < numpatients; ++i) {
                 getline(inFile, Db[i].name);
                 inFile >> Db[i].age >> Db[i].weight >> Db[i].gender;
-                inFile.ignore(); // Ignore newline after gender
+                inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore newline after gender
                 getline(inFile, Db[i].phoneNumber);
                 getline(inFile, Db[i].bloodType);
-                getline(inFile, Db[i].previousConditions);
                 inFile >> Db[i].timestamp;
-                inFile.ignore(); // Ignore newline after timestamp
+                inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore newline after timestamp
+
+                string line, previousConditions;
+                while (getline(inFile, line)) {
+                    if (line == "---") break; // Stop reading when the record delimiter is encountered
+                    previousConditions += (previousConditions.empty() ? "" : "\n") + line;
+                }
+                Db[i].previousConditions = previousConditions;
+                // cout << "Loaded Patient #" << (i + 1) << ": " << Db[i].name << "\n"; // debug output
             }
         } catch (...){
             errMsg("Error: Corrupted database file.");
@@ -586,16 +598,21 @@ namespace System {
             switch (searchType) {
                 case 1: // Search by name
                     while (true) { // Loop to allow retrying the search
+                        utils::infoMsg("You can also enter '0' to cancel and return to the previous menu.");
                         cout << "Enter patient name to search: ";
-                        cin.ignore(); // Clear the input buffer properly
+                        if (cin.peek() == '\n') cin.ignore(); // Clear the input buffer only if needed
                         getline(cin, searchStr);
                         if (searchStr.empty()) {
                             utils::errMsg("Search string cannot be empty. Please enter a valid name.");
-                            cout << "Press Enter to continue...\n";
-                            utils::holdc(); // Wait for user input before clearing the screen
-                            utils::Clear(); // Clear the console screen after displaying the message
-                            cout << "=============== SEARCH PATIENTS ================\n";
+                            // cout << "Press Enter to continue...\n";
+                            // utils::holdc(); // Wait for user input before clearing the screen
+                            // utils::Clear(); // Clear the console screen after displaying the message
+                            // cout << "=============== SEARCH PATIENTS ================\n";
                             continue; // Continue to the next iteration of the loop
+                        }
+                        if (searchStr == "0") {
+                            utils::Clear();
+                            return; // Return to the previous menu
                         }
                         // Convert searchStr to lowercase for case-insensitive comparison
                         for (char &c : searchStr) c = tolower(c);
@@ -636,6 +653,8 @@ namespace System {
                             utils::Clear();
                             cout << "=============== SEARCH PATIENTS ================\n";
                             continue; // Retry the search
+                        }
+                        break;
                     }
 
                     // Prompt the user to select a patient from the search results
@@ -662,10 +681,19 @@ namespace System {
 
                 case 2: // Search by phone number
                     while (true) { // Loop to allow retrying the search
+                        utils::infoMsg("You can also enter 'C' to cancel and return to the previous menu.");
                         cout << "Enter phone number to search: ";
-                        cin.ignore();
+                        if (cin.peek() == '\n') cin.ignore(); // Clear the input buffer only if needed
                         getline(cin, searchStr);
-                        // Remove any non-digit characters for more flexible searching
+                        if (searchStr.empty()) {
+                            utils::errMsg("Search string cannot be empty. Please enter a valid name.");
+                            continue; // Continue to the next iteration of the loop
+                        }
+                        if (searchStr == "c" || searchStr == "C") {
+                            utils::Clear();
+                            return; // Return to the previous menu
+                        }
+                        // Remove any non-digit characters for more flexible searching(normalize)
                         for (char c : searchStr) {
                             if (isdigit(c)) {
                                 normalizedSearch += c;
@@ -673,10 +701,10 @@ namespace System {
                         }
                         if (normalizedSearch.empty()) {
                             utils::errMsg("Invalid phone number. Please enter a valid phone number.");
-                            cout << "Press Enter to continue...\n";
-                            utils::holdc(); // Wait for user input before clearing the screen
-                            utils::Clear(); // Clear the console screen after displaying the message
-                            cout << "=============== SEARCH PATIENTS ================\n";
+                            // cout << "Press Enter to continue...\n";
+                            // utils::holdc(); // Wait for user input before clearing the screen
+                            // utils::Clear(); // Clear the console screen after displaying the message
+                            // cout << "=============== SEARCH PATIENTS ================\n";
                             continue;
                         }
                         utils::Clear(); // Clear the console screen before displaying results
@@ -722,6 +750,7 @@ namespace System {
                             cout << "=============== SEARCH PATIENTS ================\n";
                             continue; // Retry the search
                         }
+                        break;
                     }
                     // Prompt the user to select a patient from the search results
                     cout << "==================================================\n";
@@ -752,7 +781,7 @@ namespace System {
                     utils::Clear(); // Clear the console screen after displaying results
                     return;
             }
-            }
+            
         }
     }
 
@@ -916,11 +945,12 @@ namespace System {
                 for (int i = 0; i < numpatients; ++i) {
                     Db[i] = Patient(); // Reset each patient record
                 }
+                int temp = numpatients;
                 numpatients = 0; // Reset the number of patients
-                utils::saveToDb(Db,numpatients); // update Database
+                utils::saveToDb(Db,numpatients); // update Database 
                 cout << "==================================================\n";
                 utils::successMsg("Database cleared successfully.");
-                cout << numpatients << " patients removed from the database.\n";
+                cout << temp << " patients removed from the database.\n";
             } else {
         cout << "==================================================\n";
                 utils::infoMsg("Database clearing canceled.");
