@@ -1,5 +1,4 @@
 *
 !*.cpp
-!*.txt
 !.gitignore
 .vscode
