@@ -232,7 +232,10 @@ namespace System {
                 cin.ignore(); // Clear the input buffer before getline
                 getline(cin, log);
             }
-            if (log == "0") return;
+            if (log == "0") {
+                utils::Clear();
+                return;
+            }
             // Get the current date and time
             time_t now = time(nullptr);
             char buffer[80];
@@ -621,7 +624,10 @@ namespace System {
             cin.clear();
             cin.ignore(10000, '\n');
         }
-        if (choice == 0) utils::Clear(); return;
+        if (choice == 0){
+            utils::Clear(); 
+            return;
+        }
         if (choice == 1){ //search by name
             while (true) { // Loop to allow retrying the search
                 utils::Clear();
@@ -829,7 +835,7 @@ namespace System {
             // Name input
             while (true) {
                 cout << "Enter Patient name: ";
-                cin.ignore(); // Clear the input buffer
+                if (cin.peek() == '\n') cin.ignore(); // Clear the input buffer only if needed
                 getline(cin, newPatient.name);
                 if (newPatient.name == "0") {
                     utils::Clear(); 
@@ -996,6 +1002,7 @@ namespace System {
 
     // system dashboard
     void dashboard(){
+        utils::Clear();
         cout << "======================= PRMS DASHBOARD ========================\n";
         cout << "\033[35mMaximum Capacity: " << MAX_PATIENTS << "\033[0m\n";
         cout << "\033[35mAvailable Slots: " << (MAX_PATIENTS - numpatients) << "\033[0m\n";
@@ -1008,6 +1015,10 @@ namespace System {
         cout << "\033[35mNumber of Male Patients: " << maleCount << "\033[0m\n";
         cout << "\033[35mNumber of Female Patients: " << femaleCount << "\033[0m\n";
         cout << "============================================================\n";
+        cout << "Press Enter to continue...\n";
+        utils::holdc();
+        utils::Clear();
+        return;
     }
 
     // Function to display system information
@@ -1054,7 +1065,6 @@ void systemActions() {
         cout << "2. Clear Database (delete all records)\n";
         // cout << "3. Backup Database\n";
         // cout << "4. Restore Database\n";
-        // cout << "5. Export Database to CSV\n";
         cout << "0. Back to Main Menu\n";
         cout << "Enter your choice:> ";
 
@@ -1067,6 +1077,7 @@ void systemActions() {
         switch (choice) {
             case 1:
                 System::dashboard();
+                break;
             case 2:
                 System::clearDatabase(Db, numpatients); // Call the clear database function
                 break;
@@ -1075,9 +1086,6 @@ void systemActions() {
                 break;
             case 4:
                 // restoreDatabase(); // Call the restore database function
-                break;
-            case 5:
-                // exportToCSV(); // Call the export to CSV function
                 break;
             case 0:
                 utils::Clear();
