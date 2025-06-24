@@ -1,4 +1,4 @@
-// PATIENT RECORDS MANAGEMENT SYSTEM
+// PATIENT RECORDS MANAGEMENT SYSTEM(this time using Vector as the database to hold patients)
 // version 2.0
 // - Patient registration, search, and editing
 // - Logging and clearing patient progress
@@ -31,10 +31,8 @@ struct Patient {
 };
 
 // System-wide data
-const string FILE_NAME = "patient_db"; // file name for the db
-const int MAX_PATIENTS = 1000; // Maximum number of patients in the database
-int numpatients = 0; // initialize number of patients.
-Patient Db[MAX_PATIENTS]; // create the Db to store the patients.
+const string FILE_NAME = "db"; // file name for the db
+vector<Patient> Db;  // create the Db to store the patients.
 
 // Utility functions
 namespace utils {
@@ -77,15 +75,15 @@ namespace utils {
         return false;
     }
     //  Function to check if a patient already exists in the database
-    bool isPatientExists(const Patient Db[], int numpatients, const Patient& newPatient) {
-        for (int i = 0; i < numpatients; ++i) {
+    bool isPatientExists(const vector<Patient>& Db, const Patient& newPatient) {
+        for (const auto& patient : Db) {
             // Case-insensitive name comparison
-            string existingNameLower = Db[i].name;
+            string existingNameLower = patient.name;
             string newNameLower = newPatient.name;
             transform(existingNameLower.begin(), existingNameLower.end(), existingNameLower.begin(), ::tolower);
             transform(newNameLower.begin(), newNameLower.end(), newNameLower.begin(), ::tolower);
             // Check name and phone number (since these should be unique)
-            if (existingNameLower == newNameLower && Db[i].phoneNumber == newPatient.phoneNumber) {
+            if (existingNameLower == newNameLower && patient.phoneNumber == newPatient.phoneNumber) {
                 return true;
             }
         }
@@ -103,31 +101,29 @@ namespace utils {
     void infoMsg(const string& msg) {
         cout << "\033[34m" << msg << "\033[0m\n"; // Print info message in blue
     }
-     // Saves patient data to a file
-    void saveToDb(const Patient Db[], int numpatients) {
+    // Saves patient data to a file
+    void saveToDb(const vector<Patient>& Db) {
         ofstream outFile(FILE_NAME + ".txt");
         if (!outFile) {
             errMsg("Error: Unable to open file for saving.");
             return;
         }
         try {
-            outFile << numpatients << "\n"; // Save the number of patients
-            // cout << "Saving " << numpatients << " patients to the database...\n"; // Debug output
-            for (int i = 0; i < numpatients; ++i) {
-                outFile << Db[i].name << "\n"
-                        << Db[i].age << "\n"
-                        << Db[i].weight << "\n"
-                        << Db[i].gender << "\n"
-                        << Db[i].phoneNumber << "\n"
-                        << Db[i].bloodType << "\n"
-                        << Db[i].medicalHistory <<"\n"
-                        << Db[i].timestamp << "\n"
-                        << Db[i].progressLog << "\n";
+            outFile << Db.size() << "\n"; // Save the number of patients
+            for (const auto& patient : Db) {
+                outFile << patient.name << "\n"
+                    << patient.age << "\n"
+                    << patient.weight << "\n"
+                    << patient.gender << "\n"
+                    << patient.phoneNumber << "\n"
+                    << patient.bloodType << "\n"
+                    << patient.medicalHistory << "\n"
+                    << patient.timestamp << "\n"
+                    << patient.progressLog << "\n";
                 outFile << "---\n"; // use "---" to separate patient records
-
-                // cout << "Saved Patient #" << (i + 1) << ": " << Db[i].name << "\n";
             }
-        } catch (...){
+        }
+        catch (...) {
             errMsg("Error: Corrupted database file.");
         }
         outFile.close();
@@ -135,35 +131,37 @@ namespace utils {
         return;
     }
     // loads Patient Data from a file
-    void loadDb(Patient Db[], int& numpatients) {
+    void loadDb(vector<Patient>& Db) {
         ifstream inFile(FILE_NAME + ".txt");
         if (!inFile) {
             infoMsg("System: No previous database found. Starting fresh!");
             return;
         }
-        try{
-            inFile >> numpatients;// Load the number of patients
-            // cout << "Loading " << numpatients << " patients from the database...\n"; // Debug output
-            inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore newline after numpatients
-            for (int i = 0; i < numpatients; ++i) {
-                getline(inFile, Db[i].name);
-                inFile >> Db[i].age >> Db[i].weight >> Db[i].gender;
-                inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore newline after gender
-                getline(inFile, Db[i].phoneNumber);
-                getline(inFile, Db[i].bloodType);
-                getline(inFile, Db[i].medicalHistory);
-                inFile >> Db[i].timestamp;
-                inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore newline after timestamp
+        try {
+            size_t numpatients;
+            inFile >> numpatients;
+            inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            Db.resize(numpatients);
+
+            for (Patient& patient : Db) {
+                getline(inFile, patient.name);
+                inFile >> patient.age >> patient.weight >> patient.gender;
+                inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                getline(inFile, patient.phoneNumber);
+                getline(inFile, patient.bloodType);
+                getline(inFile, patient.medicalHistory);
+                inFile >> patient.timestamp;
+                inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
                 string line, previousConditions;
                 while (getline(inFile, line)) {
-                    if (line == "---") break; // Stop reading when the record delimiter is encountered
+                    if (line == "---") break;
                     previousConditions += (previousConditions.empty() ? "" : "\n") + line;
                 }
-                Db[i].progressLog = previousConditions;
-                // cout << "Loaded Patient #" << (i + 1) << ": " << Db[i].name << "\n"; // debug output
+                patient.progressLog = previousConditions;
             }
-        } catch (...){
+        }
+        catch (...) {
             errMsg("Error: Corrupted database file.");
         }
         inFile.close();
@@ -173,63 +171,54 @@ namespace utils {
 // System Functions
 namespace System {
     // Function to list all patients in the database
-    void listAllPatients(const Patient Db[], int numpatients) {
+    void listAllPatients(const vector<Patient>& Db) {
         utils::Clear();
-        if (numpatients > 0) {
-            cout << "=========== ALL PATIENTS (" << numpatients << ") ===========\n";
-            for (int i = 0; i < numpatients; ++i) {
-                cout << "PATIENT #" << (i + 1) << "\n";
-                cout << "Name:         " << Db[i].name << "\n";
-                cout << "Age:          " << Db[i].age << " years\n";
-                cout << "Weight:       " << Db[i].weight << " kg\n";
-                cout << "Gender:       " << Db[i].gender << "\n";
-                cout << "Blood Type:   " << Db[i].bloodType << "\n";
-                cout << "PhoneNum:     " << Db[i].phoneNumber << "\n";
-                    // Convert timestamp to readable format
-                    char buffer[80];
-                    tm* timeinfo = localtime(&Db[i].timestamp);
-                    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
-                    cout << "Registry Date: " << buffer << "\n";
-                    cout << "==========================================\n";
-                }
-            } else {
-                cout << "==========================================\n";
-                utils::infoMsg("Database is empty.");
+        if (!Db.empty()) {
+            cout << "=========== ALL PATIENTS (" << Db.size() << ") ===========\n";
+            size_t i = 1;
+            for (const auto& patient : Db) {
+                cout << "PATIENT #" << i++ << "\n";
+                cout << "Name:         " << patient.name << "\n";
+                cout << "Age:          " << patient.age << " years\n";
+                cout << "Weight:       " << patient.weight << " kg\n";
+                cout << "Gender:       " << patient.gender << "\n";
+                cout << "Blood Type:   " << patient.bloodType << "\n";
+                cout << "PhoneNum:     " << patient.phoneNumber << "\n";
+                // Convert timestamp to readable format
+                char buffer[80];
+                tm* timeinfo = localtime(&patient.timestamp);
+                strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+                cout << "Registry Date: " << buffer << "\n";
                 cout << "==========================================\n";
             }
-            cout << "press Enter to continue..."<<endl;
-            utils::holdc();
-            utils::Clear();
         }
+        else {
+            cout << "==========================================\n";
+            utils::infoMsg("Database is empty.");
+            cout << "==========================================\n";
+        }
+        cout << "press Enter to continue..." << endl;
+        utils::holdc();
+        utils::Clear();
+    }
 
     //  Function to add a new patient to the database
-    void addPatient(Patient Db[], int& numpatients) {
-        while (true){
+    void addPatient(vector<Patient>& Db) {
+        while (true) {
             utils::Clear();
-            if (numpatients >= MAX_PATIENTS) {
-                cout << "==================================================\n";
-                utils::errMsg("Database is full! Cannot add more patients.");
-                cout << "==================================================\n";
-                cout << "press Enter to continue...";
-                utils::holdc(); // Wait for user input before clearing the screen
-                utils::Clear();
-                return;
-            }
-
             Patient newPatient;
-
             cout << "=============== REGISTER NEW PATIENT ================\n";
-            utils::infoMsg("Available Slots: " + to_string(MAX_PATIENTS - numpatients));
             utils::infoMsg("Enter '0' at any point to cancel and go back to the main menu.");
             cout << "-----------------------------------------------------\n";
             cout << "please fill in the patient details below:\n";
+
             // Name input
             while (true) {
                 cout << "Enter Patient name: ";
                 if (cin.peek() == '\n') cin.ignore(); // Clear the input buffer only if needed
                 getline(cin, newPatient.name);
                 if (newPatient.name == "0") {
-                    utils::Clear(); 
+                    utils::Clear();
                     return; // Cancel registration
                 }
                 if (!newPatient.name.empty()) break; // Valid input
@@ -241,15 +230,14 @@ namespace System {
                 if (cin.peek() == '\n') cin.ignore(); // Clear the input buffer only if needed
                 getline(cin, newPatient.phoneNumber);
                 if (newPatient.phoneNumber == "0") {
-                    utils::Clear(); 
+                    utils::Clear();
                     return; // Cancel registration
                 }
                 if (utils::isValidPhoneNumber(newPatient.phoneNumber)) break; // Valid input
-                // utils::errMsg("Invalid phone number format. Please enter a valid phone number.");
                 utils::errMsg("Invalid phone number. Please try again.");
             }
             // Check for duplicate before adding
-            if (utils::isPatientExists(Db, numpatients, newPatient)) {
+            if (utils::isPatientExists(Db, newPatient)) {
                 utils::Clear();
                 cout << "==================================================\n";
                 utils::errMsg("Duplicate entry detected.");
@@ -259,7 +247,7 @@ namespace System {
                 cout << "press Enter to continue...";
                 utils::holdc();
                 utils::Clear();
-                continue; //  Continue the loop to allow re-entry of patient details
+                continue; // Continue the loop to allow re-entry of patient details
             }
             // Age input
             while (true) {
@@ -270,8 +258,8 @@ namespace System {
                     utils::errMsg("Invalid age. Please enter a positive number or '0' to cancel.");
                     continue;
                 }
-                if (newPatient.age == 0){
-                    utils::Clear(); 
+                if (newPatient.age == 0) {
+                    utils::Clear();
                     return; // Cancel registration
                 }
                 break; // Valid input
@@ -286,7 +274,7 @@ namespace System {
                     continue;
                 }
                 if (newPatient.weight == 0) {
-                    utils::Clear(); 
+                    utils::Clear();
                     return; // Cancel registration
                 }
                 break; // Valid input
@@ -297,7 +285,7 @@ namespace System {
                 cin >> newPatient.gender;
                 newPatient.gender = toupper(newPatient.gender);
                 if (newPatient.gender == '0') {
-                    utils::Clear(); 
+                    utils::Clear();
                     return; // Cancel registration
                 }
                 if (newPatient.gender == 'M' || newPatient.gender == 'F') break; // Valid input
@@ -308,12 +296,11 @@ namespace System {
                 cout << "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
                 cin >> newPatient.bloodType;
                 if (newPatient.bloodType == "0") {
-                    utils::Clear(); 
+                    utils::Clear();
                     return; // Cancel registration
                 }
-                for (char &c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
+                for (char& c : newPatient.bloodType) c = toupper(c); // Convert to uppercase
                 if (utils::isValidBloodType(newPatient.bloodType)) break; // Valid input
-                // utils::errMsg("Invalid blood type. Please enter a valid type (A+, A-, B+, B-, AB+, AB-, O+, O-).");
                 utils::errMsg("Invalid blood type. Please try again.");
             }
             // input Medical History
@@ -322,7 +309,7 @@ namespace System {
                 if (cin.peek() == '\n') cin.ignore(); // Clear the input buffer only if needed
                 getline(cin, newPatient.medicalHistory);
                 if (newPatient.medicalHistory == "0") {
-                    utils::Clear(); 
+                    utils::Clear();
                     return; // Cancel registration
                 }
                 if (!newPatient.medicalHistory.empty()) break; // Valid input
@@ -333,15 +320,18 @@ namespace System {
             // Set the registration timestamp
             newPatient.timestamp = time(nullptr);
 
+
+
             utils::Clear(); // Clear the console screen after adding patient
+
             // Add to database
-            Db[numpatients++] = newPatient;
-            utils::saveToDb(Db,numpatients); // update Database
+            Db.push_back(newPatient);
+            utils::saveToDb(Db); // update Database
 
             cout << "==================================================\n";
             utils::successMsg("New patient: '" + newPatient.name + "' Registered successfully.");
             cout << "==================================================\n";
-            cout << "press Enter to continue..."<<endl;
+            cout << "press Enter to continue..." << endl;
             utils::holdc(); // Wait for user input before clearing the screen
             utils::Clear();
             break; // Exit the loop after successful addition
@@ -349,10 +339,10 @@ namespace System {
     }
 
     // log patient condition
-    void logPatientProgress(Patient Db[], int patientIndex) {
+    void logPatientProgress(vector<Patient>& Db, int patientIndex) {
         utils::Clear();
         cout << "================= LOG PATIENT PROGRESS ==================\n";
-        if (patientIndex < 0 || patientIndex >= numpatients || Db[patientIndex].name.empty()) {
+        if (patientIndex < 0 || patientIndex >= Db.size()) {
             utils::errMsg("System Error: Invalid patient index.");
             cout << "Press Enter to continue...";
             utils::holdc();
@@ -421,7 +411,7 @@ namespace System {
         if (choice == 'Y') {
             utils::Clear(); // Clear the console screen after saving logs
             Db[patientIndex].progressLog += (Db[patientIndex].progressLog.empty() ? "" : "\n") + newLogs;
-            utils::saveToDb(Db,numpatients);//update Database
+            utils::saveToDb(Db);//update Database
             cout << "==================================================\n";
             utils::successMsg("Medical Progress logged successfully for " + Db[patientIndex].name);
             cout << "--------------------------------------------------\n";
@@ -440,35 +430,40 @@ namespace System {
     }
 
     // Function to clear logs for a specific patient
-    void clearLogs(Patient Db[], int& patientIndex) {
+    void clearLogs(vector<Patient>& Db, int patientIndex) {
         utils::Clear();
-        if (patientIndex < 0 || patientIndex >= numpatients || Db[patientIndex].name.empty()) {
+        cout << "================= CLEAR PATIENT LOGS ==================\n";
+
+        if (patientIndex < 0 || patientIndex >= Db.size()) {
             utils::errMsg("System Error: Invalid patient index.");
             cout << "Press Enter to continue...";
-            utils::holdc(); 
-            utils::Clear();
-            return; 
-        }
-        cout << "============== CLEAR LOGS FOR " << Db[patientIndex].name << " ====================\n";
-        cout << "Are you sure you want to clear all previous Medical Progress for " << Db[patientIndex].name << "? (Y/N): ";
-        char confirmClear;
-        cin >> confirmClear;
-        confirmClear = toupper(confirmClear); // Convert to uppercase for consistency
-        if (confirmClear != 'Y') {
-            utils::Clear();
-            cout << "==================================================\n";
-            utils::infoMsg("Clearing logs canceled. No changes were made to the patient's record.");
-            cout << "==================================================\n";
-            cout << "Press Enter to continue...";
-            utils::holdc(); 
+            utils::holdc();
             utils::Clear();
             return;
         }
-        Db[patientIndex].progressLog.clear(); // Clear the previous conditions
-        utils::Clear(); 
-        utils::saveToDb(Db,numpatients); // update Database
+
+        cout << "Are you sure you want to clear the logs for " << Db[patientIndex].name << "? (Y/N): ";
+        char confirmClear;
+        cin >> confirmClear;
+        confirmClear = toupper(confirmClear);
+
+        if (confirmClear != 'Y') {
+            utils::Clear();
+            cout << "==================================================\n";
+            utils::infoMsg("Clear logs operation canceled.");
+            cout << "==================================================\n";
+            cout << "Press Enter to continue...";
+            utils::holdc();
+            utils::Clear();
+            return;
+        }
+
+        Db[patientIndex].progressLog = ""; // Clear the progress log
+        utils::saveToDb(Db); // Save the changes to the database
+
+        utils::Clear();
         cout << "==================================================\n";
-        utils::successMsg("All previous Medical Progress for " + Db[patientIndex].name + " has been cleared successfully.");
+        utils::successMsg("Logs cleared successfully for " + Db[patientIndex].name);
         cout << "==================================================\n";
         cout << "Press Enter to continue...";
         utils::holdc();
@@ -476,21 +471,31 @@ namespace System {
     }
 
     //  Function to delete a patient record from the database
-    void deletePatient(Patient Db[], int& numpatients, int patientIndex) {
+    void deletePatient(vector<Patient>& Db, int patientIndex) {
         utils::Clear(); // Clear the console screen before deleting a patient
-        if (patientIndex < 0 || patientIndex >= numpatients) {
-            cout << "Invalid patient index.\n";
+
+        if (Db.empty()) {
+            utils::infoMsg("Database is empty. Cannot delete.");
             cout << "Press Enter to continue...";
-            utils::holdc(); 
+            utils::holdc();
             utils::Clear();
             return;
         }
+
+        if (patientIndex < 0 || patientIndex >= Db.size()) {
+            utils::errMsg("Invalid patient index.");
+            cout << "Press Enter to continue...";
+            utils::holdc();
+            utils::Clear();
+            return;
+        }
+
         cout << "================ DELETE PATIENT ===================\n";
         cout << "Are you sure you want to delete the record of " << Db[patientIndex].name << "? (Y/N): ";
-        // cout << "This action cannot be undone.\n";
         char confirmDelete;
         cin >> confirmDelete;
         confirmDelete = toupper(confirmDelete); // Convert to uppercase for consistency
+
         if (confirmDelete != 'Y') {
             utils::Clear();
             cout << "==================================================\n";
@@ -501,14 +506,12 @@ namespace System {
             utils::Clear();
             return;
         }
-        // Shift remaining patients down in the array
-        for (int i = patientIndex; i < numpatients - 1; ++i) {
-            Db[i] = Db[i + 1];
-        }
-        --numpatients; // Decrease the number of patients
-        patientIndex = -1; // Reset patientIndex to -1 after deletion // Invalidate the patient index
+
+        // Remove the patient from the vector
+        Db.erase(Db.begin() + patientIndex);
+        utils::saveToDb(Db);
+
         utils::Clear();
-        utils::saveToDb(Db,numpatients);
         cout << "==================================================\n";
         utils::successMsg("Patient Record deleted successfully.");
         cout << "==================================================\n";
@@ -517,10 +520,20 @@ namespace System {
         utils::Clear();
     }
 
-    // Function to add a new patient to the database
-    void editPatient(Patient Db[], int& patientIndex) {
+    // Function to edit an existing patient's record
+    void editPatient(vector<Patient>& Db, int patientIndex) {
         utils::Clear();
-        const Patient& patient = Db[patientIndex];
+
+        if (patientIndex < 0 || patientIndex >= Db.size()) {
+            utils::errMsg("System Error: Invalid patient index.");
+            cout << "Press Enter to continue...";
+            utils::holdc();
+            utils::Clear();
+            return;
+        }
+
+        Patient& patient = Db[patientIndex]; // Get a reference to the patient object
+
         int choice;
         do {
             cout << "================== EDIT PATIENT RECORD =================\n";
@@ -532,8 +545,8 @@ namespace System {
             cout << "5. Weight:       " << patient.weight << " kg\n";
             cout << "6. Phone Number: " << patient.phoneNumber << "\n";
             cout << "7. Medical History: \n";
-            cout<< ">>> " << patient.medicalHistory<<"\n";
-            cout << "=====================================================\n";    
+            cout << ">>> " << patient.medicalHistory << "\n";
+            cout << "=====================================================\n";
             utils::infoMsg("Select the item you want to edit (1-7), or enter 0 to cancel:> ");
 
             while (!(cin >> choice) || choice < 0 || choice > 7) {
@@ -548,131 +561,131 @@ namespace System {
             }
 
             switch (choice) {
-                case 1: {
-                    string new_name;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Name:_\n";
-                    utils::infoMsg("Current Name: " + patient.name);
-                    cout << "Enter new patient name: ";
-                    cin.ignore();
-                    getline(cin, new_name);
-                    Db[patientIndex].name = new_name;
-                    break;
+            case 1: {
+                string new_name;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Name:_\n";
+                utils::infoMsg("Current Name: " + patient.name);
+                cout << "Enter new patient name: ";
+                cin.ignore();
+                getline(cin, new_name);
+                patient.name = new_name;
+                break;
+            }
+            case 2: {
+                int new_age;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Age:_\n";
+                utils::infoMsg("Current Age: " + to_string(patient.age) + " years");
+                cout << "Enter new age: ";
+                while (!(cin >> new_age) || new_age < 0) {
+                    utils::errMsg("Invalid input. Please enter a positive number: ");
+                    cin.clear();
+                    cin.ignore(10000, '\n');
                 }
-                case 2: {
-                    int new_age;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Age:_\n";
-                    utils::infoMsg("Current Age: " + to_string(patient.age) + " years");
-                    cout << "Enter new age: ";
-                    while (!(cin >> new_age) || new_age < 0) {
-                        utils::errMsg("Invalid input. Please enter a positive number: ");
-                        cin.clear();
-                        cin.ignore(10000, '\n');
-                    }
-                    Db[patientIndex].age = new_age;
-                    break;
-                }
-                case 3: {
-                    char newGender;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Gender:_\n";
-                    utils::infoMsg("Current Gender: " + patient.gender);
-                    cout << "Enter new gender (M/F): ";
+                patient.age = new_age;
+                break;
+            }
+            case 3: {
+                char newGender;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Gender:_\n";
+                utils::infoMsg("Current Gender: " + patient.gender);
+                cout << "Enter new gender (M/F): ";
+                cin >> newGender;
+                newGender = toupper(newGender);
+                while (newGender != 'M' && newGender != 'F') {
+                    utils::errMsg("Invalid input. Please enter M or F: ");
                     cin >> newGender;
                     newGender = toupper(newGender);
-                    while (newGender != 'M' && newGender != 'F') {
-                        utils::errMsg("Invalid input. Please enter M or F: ");
-                        cin >> newGender;
-                        newGender = toupper(newGender);
-                    }
-                    Db[patientIndex].gender = newGender;
-                    break;
                 }
-                case 4: {
-                    string new_bloodType;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Blood Type:_\n";
-                    utils::infoMsg("Current Blood Type: " + patient.bloodType);
-                    cout << "Enter new blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
-                    cin.ignore();
+                patient.gender = newGender;
+                break;
+            }
+            case 4: {
+                string new_bloodType;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Blood Type:_\n";
+                utils::infoMsg("Current Blood Type: " + patient.bloodType);
+                cout << "Enter new blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ";
+                cin.ignore();
+                getline(cin, new_bloodType);
+                for (char& c : new_bloodType) c = toupper(c); // Convert to uppercase
+                while (!utils::isValidBloodType(new_bloodType)) {
+                    utils::errMsg("Invalid blood type. Please enter a valid type: ");
                     getline(cin, new_bloodType);
-                    for (char &c : new_bloodType) c = toupper(c); // Convert to uppercase
-                    while (!utils::isValidBloodType(new_bloodType)) {
-                        utils::errMsg("Invalid blood type. Please enter a valid type: ");
-                        getline(cin, new_bloodType);
-                        for (char &c : new_bloodType) c = toupper(c); // Convert to uppercase
-                    }
-                    Db[patientIndex].bloodType = new_bloodType;
-                    break;
+                    for (char& c : new_bloodType) c = toupper(c); // Convert to uppercase
                 }
-                case 5: {
-                    int new_weight;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Weight:_\n";
-                    utils::infoMsg("Current Weight: " + to_string(patient.weight) + " kg");
-                    cout << "Enter new weight (kg): ";
-                    while (!(cin >> new_weight) || new_weight < 0) {
-                        utils::errMsg("Invalid input. Please enter a positive number: ");
-                        cin.clear();
-                        cin.ignore(10000, '\n');
-                    }
-                    Db[patientIndex].weight = new_weight;
-                    break;
+                patient.bloodType = new_bloodType;
+                break;
+            }
+            case 5: {
+                int new_weight;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Weight:_\n";
+                utils::infoMsg("Current Weight: " + to_string(patient.weight) + " kg");
+                cout << "Enter new weight (kg): ";
+                while (!(cin >> new_weight) || new_weight < 0) {
+                    utils::errMsg("Invalid input. Please enter a positive number: ");
+                    cin.clear();
+                    cin.ignore(10000, '\n');
                 }
-                case 6: {
-                    string new_phoneNumber;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Phone Number:_\n";
-                    utils::infoMsg("Current Phone Number: " + patient.phoneNumber);
-                    cout << "Enter new phone number: ";
-                    cin.ignore();
+                patient.weight = new_weight;
+                break;
+            }
+            case 6: {
+                string new_phoneNumber;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Phone Number:_\n";
+                utils::infoMsg("Current Phone Number: " + patient.phoneNumber);
+                cout << "Enter new phone number: ";
+                cin.ignore();
+                getline(cin, new_phoneNumber);
+                while (!utils::isValidPhoneNumber(new_phoneNumber)) {
+                    utils::errMsg("Invalid phone number format. Please enter a valid phone number: ");
                     getline(cin, new_phoneNumber);
-                    while (!utils::isValidPhoneNumber(new_phoneNumber)) {
-                        utils::errMsg("Invalid phone number format. Please enter a valid phone number: ");
-                        getline(cin, new_phoneNumber);
-                    }
-                    Db[patientIndex].phoneNumber = new_phoneNumber;
-                    break;
                 }
-                case 7: {
-                    string new_history;
-                    cout << "----------------------------------------------\n";
-                    cout << "Editing Medical History:_\n";
-                    cout << "----------------------------------------------\n";
-                    utils::infoMsg("Current Medical History: ");
-                    utils::infoMsg(">>> "+patient.medicalHistory);
-                    cout << "----------------------------------------------\n";
-                    cout << "Enter edited Medical History: ";
-                    cin.ignore(); // Clear the input buffer
-                    getline(cin, new_history);
-                    Db[patientIndex].medicalHistory = new_history;
-                    break;
-                }
-                default:
-                    break;
+                patient.phoneNumber = new_phoneNumber;
+                break;
+            }
+            case 7: {
+                string new_history;
+                cout << "----------------------------------------------\n";
+                cout << "Editing Medical History:_\n";
+                cout << "----------------------------------------------\n";
+                utils::infoMsg("Current Medical History: ");
+                utils::infoMsg(">>> " + patient.medicalHistory);
+                cout << "----------------------------------------------\n";
+                cout << "Enter edited Medical History: ";
+                cin.ignore(); // Clear the input buffer
+                getline(cin, new_history);
+                patient.medicalHistory = new_history;
+                break;
+            }
+            default:
+                break;
             }
             utils::Clear();
-            utils::saveToDb(Db,numpatients); // update Database
+            utils::saveToDb(Db); // update Database
             cout << "===================================================\n";
-            utils::successMsg(Db[patientIndex].name + "'s record was updated successfully.");
+            utils::successMsg(patient.name + "'s record was updated successfully.");
             cout << "===================================================\n";
             cout << "Press Enter to continue...";
-            utils::holdc(); 
+            utils::holdc();
             utils::Clear();
         } while (choice != 0);
     }
 
     // Function to display patient details and manage actions
-    void displayPatientProfile(Patient Db[], int& patientIndex) {
+    void displayPatientProfile(vector<Patient>& Db, int patientIndex) {
         utils::Clear();
-        if (patientIndex < 0 || patientIndex >= numpatients) {// Check if the index is valid
+        if (patientIndex < 0 || patientIndex >= Db.size()) {// Check if the index is valid
             utils::errMsg("System Error: Invalid patient index.");
             cout << "Press Enter to continue...";
             utils::holdc();
             return;
         }
-        const Patient& patient = Db[patientIndex];
+        Patient& patient = Db[patientIndex];
 
         int choice;
         do {
@@ -695,18 +708,19 @@ namespace System {
             // Display Progress logs if any
             if (!patient.progressLog.empty()) {
                 cout << "\033[33mPatient Medical Progress Logs: \n" << patient.progressLog << "\033[0m\n";
-            } else {
+            }
+            else {
                 cout << "\033[33mNo progress Logs recorded.\033[0m\n";
             }
 
             cout << "=====================================================\n";
             cout << "Actions:\n";
-            cout <<"1. log Medical progress for "<<patient.name <<"\n";
-            cout <<"2. Clear "<<patient.name<<"'s Medical progress logs"<<"\n";
-            cout <<"3. Edit "<<patient.name<< "'s profile"<<"\n";
-            cout <<"4. Delete "<<patient.name<<"'s profile from the system"<<"\n";
-            cout <<"0. Back to Main Menu"<< "\n";
-            cout <<"Enter your choice:> ";
+            cout << "1. log Medical progress for " << patient.name << "\n";
+            cout << "2. Clear " << patient.name << "'s Medical progress logs" << "\n";
+            cout << "3. Edit " << patient.name << "'s profile" << "\n";
+            cout << "4. Delete " << patient.name << "'s profile from the system" << "\n";
+            cout << "0. Back to Main Menu" << "\n";
+            cout << "Enter your choice:> ";
 
             while (!(cin >> choice)) {
                 utils::errMsg("Invalid input. Please enter a number: ");
@@ -714,7 +728,7 @@ namespace System {
                 cin.ignore(10000, '\n');
             }
 
-            switch (choice){
+            switch (choice) {
             case 1:
                 logPatientProgress(Db, patientIndex);
                 break;
@@ -722,10 +736,10 @@ namespace System {
                 clearLogs(Db, patientIndex);
                 break;
             case 3:
-                editPatient(Db,patientIndex);
+                editPatient(Db, patientIndex);
                 break;
             case 4:
-                deletePatient(Db, numpatients, patientIndex);
+                deletePatient(Db, patientIndex);
                 return;
             case 0:
                 utils::Clear();
@@ -740,10 +754,10 @@ namespace System {
     }
 
     // Function to find patients by name or phone number
-    void findPatients(Patient Db[], int numpatients) {
-        utils::Clear(); // Clear the console screen 
+    void findPatients(vector<Patient>& Db) {
+        utils::Clear(); // Clear the console screen
         cout << "=============== SEARCH PATIENTS ================\n";
-        if (numpatients == 0) {
+        if (Db.empty()) {
             utils::infoMsg("Database is empty. Cannot search.");
             cout << "==================================================\n";
             cout << "Press Enter to continue...";
@@ -769,11 +783,11 @@ namespace System {
             cin.clear();
             cin.ignore(10000, '\n');
         }
-        if (choice == 0){
-            utils::Clear(); 
+        if (choice == 0) {
+            utils::Clear();
             return;
         }
-        if (choice == 1){ //search by name
+        if (choice == 1) { //search by name
             while (true) { // Loop to allow retrying the search
                 utils::Clear();
                 cout << "=============== SEARCH BY NAME ================\n";
@@ -783,10 +797,6 @@ namespace System {
                 getline(cin, searchStr);
                 if (searchStr.empty()) {
                     utils::errMsg("Search string cannot be empty. Please enter a valid name.");
-                    // cout << "Press Enter to continue...\n";
-                    // utils::holdc(); // Wait for user input before clearing the screen
-                    // utils::Clear(); // Clear the console screen after displaying the message
-                    // cout << "=============== SEARCH PATIENTS ================\n";
                     continue; // Continue to the next iteration of the loop
                 }
                 if (searchStr == "0") {
@@ -794,16 +804,16 @@ namespace System {
                     return; // Return to the previous menu
                 }
                 // Convert searchStr to lowercase for case-insensitive comparison
-                for (char &c : searchStr) c = tolower(c);
+                for (char& c : searchStr) c = tolower(c);
                 utils::Clear(); // Clear the console screen before displaying results
                 cout << "================== SEARCH RESULTS ==================\n";
                 utils::infoMsg("Searching for patients with name containing: " + searchStr);
                 cout << "-----------------------------------------------------\n";
                 // Loop through the database to find matching patients
-                for (int i = 0; i < numpatients; ++i) {
+                for (size_t i = 0; i < Db.size(); ++i) {
                     string patientNameLower = Db[i].name;
                     // Convert patient name to lowercase for case-insensitive comparison
-                    for (char &c : patientNameLower) c = tolower(c);
+                    for (char& c : patientNameLower) c = tolower(c);
                     if (patientNameLower.find(searchStr) != string::npos) {
                         matchIndices.push_back(i); // Store the actual index of the match
                         // Display the matching patient details
@@ -856,7 +866,7 @@ namespace System {
             displayPatientProfile(Db, patientIndex); // Pass the actual index to the display function
             return; // Return after displaying patient details
         }
-        else if (choice == 2){ //search by phone number
+        else if (choice == 2) { //search by phone number
             while (true) { // Loop to allow retrying the search
                 utils::Clear();
                 cout << "=============== SEARCH BY PHONE NUMBER ================\n";
@@ -880,17 +890,13 @@ namespace System {
                 }
                 if (normalizedSearch.empty()) {
                     utils::errMsg("Invalid phone number. Please enter a valid phone number.");
-                    // cout << "Press Enter to continue...\n";
-                    // utils::holdc(); // Wait for user input before clearing the screen
-                    // utils::Clear(); // Clear the console screen after displaying the message
-                    // cout << "=============== SEARCH PATIENTS ================\n";
                     continue;
                 }
                 utils::Clear(); // Clear the console screen before displaying results
                 cout << "================== SEARCH RESULTS ==================\n";
                 utils::infoMsg("Searching for patients with phone number containing: " + searchStr);
                 cout << "====================================================\n";
-                for (int i = 0; i < numpatients; ++i) {
+                for (size_t i = 0; i < Db.size(); ++i) {
                     // Normalize the stored phone number for comparison
                     string normalizedDbPhone;
                     for (char c : Db[i].phoneNumber) {
@@ -915,13 +921,12 @@ namespace System {
 
                 if (matchIndices.empty()) {
                     cout << "==================================================\n";
-                    utils::infoMsg("No patients found with the Phone Number containing: " + searchStr);
+                    utils::infoMsg("No patients found with the Phone number containing: " + searchStr);
                     cout << "==================================================\n";
                     cout << "Press Enter to retry or type '0' to cancel: ";
                     string retryInput;
                     getline(cin, retryInput);
                     if (retryInput == "0") {
-                        // utils::infoMsg("Search canceled. Returning to the previous menu...");
                         utils::Clear();
                         return; // Exit the function if the user cancels
                     }
@@ -953,19 +958,18 @@ namespace System {
             displayPatientProfile(Db, patientIndex); // Pass the actual index to the display function
             return;
         }
-
     }
 
     //  Function to clear the entire database
-    void clearDatabase(Patient Db[], int& numpatients) {
+    void clearDatabase(vector<Patient>& Db) {
         utils::Clear();
         cout << "================= CLEAR DATABASE =====================\n";
-        if (numpatients == 0) {
+        if (Db.empty()) {
             utils::infoMsg("Database is already empty...");
         } else {
             cout << "This action will clear all patient records from the database.\n";
             cout << "-----------------------------------------------------\n";
-            cout << "Current number of patients: " << numpatients << "\n";
+            cout << "Current number of patients: " << Db.size() << "\n";
             cout << "-------------------------------------------------\n";
             utils::errMsg("Warning: This action cannot be undone.");
             cout << "Are you sure you want to clear the database? (Y/N): ";
@@ -973,24 +977,19 @@ namespace System {
             cin >> confirmClear;
             utils::Clear();
             if (toupper(confirmClear) == 'Y') {
-                for (int i = 0; i < numpatients; ++i) {
-                    Db[i] = Patient(); // Reset each patient record
-                }
-                int temp = numpatients;
-                numpatients = 0; // Reset the number of patients
-                utils::saveToDb(Db,numpatients); // update Database 
+                Db.clear(); // Clear all elements from the vector
+                utils::saveToDb(Db); // update Database
                 cout << "==================================================\n";
                 utils::successMsg("Database cleared successfully.");
-                cout << temp << " patients removed from the database.\n";
             } else {
-        cout << "==================================================\n";
+                cout << "==================================================\n";
                 utils::infoMsg("Database clearing canceled.");
                 cout << "No changes were made to the database.\n";
             }
         }
         cout << "==================================================\n";
-        cout << "press Enter to continue...";
-        utils::holdc(); // Wait for user input before clearing the screen
+        cout << "Press Enter to continue...";
+        utils::holdc();
         utils::Clear();
     }
 
@@ -998,24 +997,35 @@ namespace System {
     void dashboard(){
         utils::Clear();
         cout << "======================= PRMS DASHBOARD ========================\n";
-        cout << "\033[35mMaximum Capacity: " << MAX_PATIENTS << "\033[0m\n";
-        cout << "\033[35mAvailable Slots: " << (MAX_PATIENTS - numpatients) << "\033[0m\n";
-        cout << "\033[35mTotal Patients Registered: " << numpatients << "\033[0m\n";
+        cout << "\033[35mTotal Patients Registered: " << Db.size() << "\033[0m\n";
+
         int maleCount = 0, femaleCount = 0;
-        for (int i = 0; i < numpatients; ++i) {
-            if (Db[i].gender == 'M') ++maleCount;
-            else if (Db[i].gender == 'F') ++femaleCount;
+        double totalAge = 0.0, totalWeight = 0.0;
+
+        for (const auto& patient : Db) {
+            if (patient.gender == 'M') ++maleCount;
+            else if (patient.gender == 'F') ++femaleCount;
+            totalAge += patient.age;
+            totalWeight += patient.weight;
         }
+
         cout << "\033[35mNumber of Male Patients: " << maleCount << "\033[0m\n";
         cout << "\033[35mNumber of Female Patients: " << femaleCount << "\033[0m\n";
+
+        if (Db.size() > 0) {
+            cout << "\033[35mAverage Age: " << (totalAge / Db.size()) << " years\033[0m\n";
+            cout << "\033[35mAverage Weight: " << (totalWeight / Db.size()) << " kg\033[0m\n";
+        } else {
+            cout << "\033[33mNo patients in the database to calculate averages.\033[0m\n";
+        }
+
         cout << "============================================================\n";
         cout << "Press Enter to continue...\n";
         utils::holdc();
         utils::Clear();
-        return;
     }
 
-    // Function to display system information 
+    // Function to display system information
     void info(){
         utils::Clear();
         cout << "=============== ABOUT THE SYSTEM ================\n";
@@ -1050,7 +1060,7 @@ namespace System {
 
 // System Actions Menu Function
 void systemActions() {
-    utils::Clear(); 
+    utils::Clear();
     int choice;
     do {
         cout << "=============== SYSTEM ACTIONS ================\n";
@@ -1071,7 +1081,7 @@ void systemActions() {
                 System::dashboard();
                 break;
             case 2:
-                System::clearDatabase(Db, numpatients);
+                System::clearDatabase(Db);
                 break;
             case 0:
                 utils::Clear();
@@ -1106,16 +1116,16 @@ void mainMenu(){
 
         switch (choice) {
             case 1:
-                System::findPatients(Db,numpatients);
+                System::findPatients(Db);
                 break;
             case 2:
-                System::addPatient(Db, numpatients); 
+                System::addPatient(Db);
                 break;
             case 3:
-                System::listAllPatients(Db,numpatients);
+                System::listAllPatients(Db);
                 break;
             case 4:
-                systemActions(); 
+                systemActions();
                 break;
             case 5:
                 System::info();
@@ -1140,7 +1150,7 @@ void mainMenu(){
 int main() {
     utils::Clear();
     utils::infoMsg("WELCOME TO THE PATIENT RECORDS MANAGEMENT SYSTEM!");
-    utils::loadDb(Db, numpatients); //load the database to memory
+    utils::loadDb(Db); //load the database to memory
     mainMenu(); // Call the main menu function
     return 0;
 }
