@@ -1057,8 +1057,8 @@ void systemActions() {
         cout << "0. Back to Main Menu\n";
         cout << "Enter your choice:> ";
 
-        while (!(cin >> choice)) {
-            cout << "Invalid input. Please enter a number: ";
+        while (!(cin >> choice)|| choice > 2) {
+            cout << "Invalid input. Please enter a number from 1 - 2: ";
             cin.clear();
             cin.ignore(10000, '\n');
         }
@@ -1095,8 +1095,8 @@ void mainMenu(){
         cout << "0. Exit\n";
         cout << "Enter your choice:> ";
 
-        while (!(cin >> choice)) {
-            utils::errMsg("Invalid input. Please enter a number: ");
+        while (!(cin >> choice) || choice > 5) {
+            utils::errMsg("Invalid input. Please enter a number from 1 - 5: ");
             cin.clear();
             cin.ignore(10000, '\n');
         }
