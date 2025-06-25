@@ -1031,12 +1031,7 @@ namespace System {
         cout << "For more information, please refer to the documentation.\n";
         cout << "==================================================\n";
         cout << "Developed by: \n";
-        cout << "- Brook Ayneabeba\n";
         cout << "- Ihsan Shafi\n";
-        cout << "- Bisrat Aklilu\n";
-        cout << "- Abenezer Asmare\n";
-        cout << "- Biniyam Abera\n";
-        cout << "- Soliyana Getachew\n";
         cout << "==================================================\n";
         cout << "Patient Records Management System.\n";
         cout << "Version: 2.0.0\n";
