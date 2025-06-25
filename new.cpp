@@ -21,7 +21,7 @@ using namespace std;
 struct Patient {
     string name;         // Patient's name
     int age;            // Patient's age
-    int weight;         // Patient's weight in kilograms
+    float weight;         // Patient's weight in kilograms
     char gender;        // Gender: 'M' for Male, 'F' for Female
     string phoneNumber;   // Contact phone number
     string bloodType;       // Blood type (e.g., A+, O-)
@@ -59,6 +59,7 @@ namespace utils {
     // Validates phone number format
     bool isValidPhoneNumber(const string& phone) {
         if (phone.empty()) return false;
+        if (!(phone.length() == 10)) return false;
         for (char c : phone) {
             if (!isdigit(c) && c != '+' && c != '-' && c != ' ' && c != '(' && c != ')') {
                 return false;
@@ -262,6 +263,7 @@ namespace System {
                     utils::Clear();
                     return; // Cancel registration
                 }
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Consume any remaining input
                 break; // Valid input
             }
             // Weight input
