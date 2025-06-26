@@ -63,7 +63,7 @@ namespace utils {
         if (phone.empty()) return false;
         if (!(phone.length() == 10)) return false;
         for (char c : phone) {
-            if (!isdigit(c) && c != '+' && c != '-' && c != ' ' && c != '(' && c != ')') {
+            if (!isdigit(c)) {
                 return false;
             }
         }
@@ -1033,7 +1033,12 @@ namespace System {
         cout << "For more information, please refer to the documentation.\n";
         cout << "==================================================\n";
         cout << "Developed by: \n";
+        cout << "- Brook Ayneabeba\n";
         cout << "- Ihsan Shafi\n";
+        cout << "- Bisrat Aklilu\n";
+        cout << "- Abenezer Asmare\n";
+        cout << "- Biniyam Abera\n";
+        cout << "- Soliyana Getachew\n";
         cout << "==================================================\n";
         cout << "Patient Records Management System.\n";
         cout << "Version: 2.0.0\n";
@@ -1046,11 +1051,11 @@ namespace System {
 }
 
 // System Actions Menu Function
-void systemActions() {
+void adminMenu() {
     utils::Clear(); 
     int choice;
     do {
-        cout << "=============== SYSTEM ACTIONS ================\n";
+        cout << "=============== ADMIN ACTIONS ================\n";
         cout << "Available Actions:\n";
         cout << "1. Show System Stats\n";
         cout << "2. Clear Database (delete all records)\n";
@@ -1090,7 +1095,7 @@ void mainMenu(){
         cout << "1. Search Patient Records\n";
         cout << "2. Register a New Patient\n";
         cout << "3. list All Patient Records\n";
-        cout << "4. System Actions\n";
+        cout << "4. Admin Actions\n";
         cout << "5. Info\n";
         cout << "0. Exit\n";
         cout << "Enter your choice:> ";
@@ -1112,7 +1117,7 @@ void mainMenu(){
                 System::listAllPatients(Db,numpatients);
                 break;
             case 4:
-                systemActions(); 
+                adminMenu();
                 break;
             case 5:
                 System::info();

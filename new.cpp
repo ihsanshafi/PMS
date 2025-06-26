@@ -61,7 +61,7 @@ namespace utils {
         if (phone.empty()) return false;
         if (!(phone.length() == 10)) return false;
         for (char c : phone) {
-            if (!isdigit(c) && c != '+' && c != '-' && c != ' ' && c != '(' && c != ')') {
+            if (!isdigit(c)) {
                 return false;
             }
         }
@@ -322,12 +322,8 @@ namespace System {
             // Set the registration timestamp
             newPatient.timestamp = time(nullptr);
 
-
-
             utils::Clear(); // Clear the console screen after adding patient
-
-            // Add to database
-            Db.push_back(newPatient);
+            Db.push_back(newPatient); // add to db
             utils::saveToDb(Db); // update Database
 
             cout << "==================================================\n";
@@ -380,14 +376,12 @@ namespace System {
                 utils::Clear();
                 return;
             }
-            // Get the current date and time
-            time_t now = time(nullptr);
+            time_t now = time(nullptr);// Get the current date and time
             char buffer[80];
             tm* timeinfo = localtime(&now);
             strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
 
-            // Append the log with the log date
-            string logWithDate = log + " (Logged on: " + buffer + ")";
+            string logWithDate = log + " (Logged on: " + buffer + ")"; // Append the log with the log date
             newLogs += (newLogs.empty() ? std::string("") : std::string("\n")) + ">> " + logWithDate;
             cout << "---------------------------------------------------\n";
             utils::successMsg("log added successfully.");
@@ -1043,7 +1037,12 @@ namespace System {
         cout << "For more information, please refer to the documentation.\n";
         cout << "==================================================\n";
         cout << "Developed by: \n";
+        cout << "- Brook Ayneabeba\n";
         cout << "- Ihsan Shafi\n";
+        cout << "- Bisrat Aklilu\n";
+        cout << "- Abenezer Asmare\n";
+        cout << "- Biniyam Abera\n";
+        cout << "- Soliyana Getachew\n";
         cout << "==================================================\n";
         cout << "Patient Records Management System.\n";
         cout << "Version: 2.0.0\n";
@@ -1056,11 +1055,11 @@ namespace System {
 }
 
 // System Actions Menu Function
-void systemActions() {
+void adminMenu() {
     utils::Clear();
     int choice;
     do {
-        cout << "=============== SYSTEM ACTIONS ================\n";
+        cout << "=============== ADMIN ACTIONS ================\n";
         cout << "Available Actions:\n";
         cout << "1. Show System Stats\n";
         cout << "2. Clear Database (delete all records)\n";
@@ -1100,7 +1099,7 @@ void mainMenu(){
         cout << "1. Search Patient Records\n";
         cout << "2. Register a New Patient\n";
         cout << "3. list All Patient Records\n";
-        cout << "4. System Actions\n";
+        cout << "4. Admin Actions\n";
         cout << "5. Info\n";
         cout << "0. Exit\n";
         cout << "Enter your choice:> ";
@@ -1122,7 +1121,7 @@ void mainMenu(){
                 System::listAllPatients(Db);
                 break;
             case 4:
-                systemActions();
+                adminMenu();
                 break;
             case 5:
                 System::info();
