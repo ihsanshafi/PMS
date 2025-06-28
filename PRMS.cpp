@@ -1,9 +1,5 @@
-// PATIENT RECORDS MANAGEMENT SYSTEM(this time using Vector as the database to hold patients)
-// version 2.0
-// - Patient registration, search, and editing
-// - Logging and clearing patient progress
-// - Dashboard for system statistics
-// - Persistent database storage
+// PATIENT RECORDS MANAGEMENT SYSTEM version 2.0(Vector-based)
+
 #include <iostream> // for input/output operations
 #include <string> // for string operations
 #include <algorithm> // for transform function
@@ -12,7 +8,7 @@
 #include <limits> // for numeric_limits
 #include <ctime> // for time usage
 #include <vector> // for vector operations
-#if defined _WIN32 // condition to include the <conio.h> to use getch() if the user is on windows
+#if defined _WIN32 // condition to include the <conio.h> when compiling to use getch() if the user is on windows
     #include <conio.h> // for getch()
 #endif
 using namespace std;
@@ -204,7 +200,7 @@ namespace System {
     }
 
     //  Function to add a new patient to the database
-    void addPatient(vector<Patient>& Db) {
+    void registerPatient(vector<Patient>& Db) {
         while (true) {
             utils::Clear();
             Patient newPatient;
@@ -384,14 +380,18 @@ namespace System {
             string logWithDate = log + " (Logged on: " + buffer + ")"; // Append the log with the log date
             newLogs += (newLogs.empty() ? std::string("") : std::string("\n")) + ">> " + logWithDate;
             cout << "---------------------------------------------------\n";
-            utils::successMsg("log added successfully.");
+            utils::infoMsg("log added.");
             cout << "---------------------------------------------------\n";
             cout << "Do you want to add another Log? (Y/N): ";
             cin >> choice;
             choice = toupper(choice); // Convert to uppercase for consistency
             while (choice != 'Y' && choice != 'N') {
                 utils::errMsg("Invalid input. Please enter Y or N: ");
-                cin >> choice;
+                if (!(cin >> choice)) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    continue;
+                }
                 choice = toupper(choice); // Convert to uppercase for consistency
             }
         } while (choice == 'Y');
@@ -401,7 +401,11 @@ namespace System {
         choice = toupper(choice);
         while (choice != 'Y' && choice != 'N') {
             utils::errMsg("Invalid input. Please enter Y or N: ");
-            cin >> choice;
+            if (!(cin >> choice)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
             choice = toupper(choice); // Convert to uppercase for consistency
         }
         if (choice == 'Y') {
@@ -750,7 +754,7 @@ namespace System {
     }
 
     // Function to find patients by name or phone number
-    void findPatients(vector<Patient>& Db) {
+    void searchPatients(vector<Patient>& Db) {
         utils::Clear(); // Clear the console screen
         cout << "=============== SEARCH PATIENTS ================\n";
         if (Db.empty()) {
@@ -767,7 +771,6 @@ namespace System {
         int selected; // selected match from the search results
         int patientIndex; // index of selected patient to be passed to the display function
         // prompt search type
-        cout << "--------------------------------------------------\n";
         cout << "SEARCH BY: \n";
         cout << "1. NAME\n";
         cout << "2. PHONE NUMBER\n";
@@ -804,7 +807,7 @@ namespace System {
                 utils::Clear(); // Clear the console screen before displaying results
                 cout << "================== SEARCH RESULTS ==================\n";
                 utils::infoMsg("Searching for patients with name containing: " + searchStr);
-                cout << "-----------------------------------------------------\n";
+                cout << "--------------------------------------------------\n";
                 // Loop through the database to find matching patients
                 for (size_t i = 0; i < Db.size(); ++i) {
                     string patientNameLower = Db[i].name;
@@ -1095,7 +1098,7 @@ void adminMenu() {
 void mainMenu(){
     int choice;
     do {
-        cout << "=============== MAIN MENU =======V3=======\n";
+        cout << "=============== MAIN MENU ===============\n";
         cout << "1. Search Patient Records\n";
         cout << "2. Register a New Patient\n";
         cout << "3. list All Patient Records\n";
@@ -1112,10 +1115,10 @@ void mainMenu(){
 
         switch (choice) {
             case 1:
-                System::findPatients(Db);
+                System::searchPatients(Db);
                 break;
             case 2:
-                System::addPatient(Db);
+                System::registerPatient(Db);
                 break;
             case 3:
                 System::listAllPatients(Db);

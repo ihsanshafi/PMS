@@ -97,7 +97,7 @@
 //     Wait for key press
 //     Clear screen
 
-// addPatient(Db: vector of Patient):
+// registerPatient(Db: vector of Patient):
 //     Loop:
 //         Clear screen
 //         Create newPatient: Patient struct
@@ -105,11 +105,12 @@
 //         Print info message "Enter '0' at any point to cancel and go back to the main menu."
 //         Print "please fill in the patient details below:\n"
 //
-//         Loop: // Name input
+//         Name input---------------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter Patient name: "
-//             If there are remaining characters in the input buffer:
-//                 Clear the input buffer
-//             Read name
+//             If there's a newline character in the input buffer:
+//                 Consume it
+//             Read name using getline
 //             If name is "0":
 //                 Clear screen
 //                 Return
@@ -117,11 +118,13 @@
 //                 Break loop
 //             Print error message "Name cannot be empty. Please try again."
 //         newPatient.name = name
-//         Loop: // Phone Number input
+//
+//         Phone Number input-------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter phone number: "
-//             If there are remaining characters in the input buffer:
-//                 Clear the input buffer
-//             Read phoneNumber
+//             If there's a newline character in the input buffer:
+//                 Consume it
+//             Read phoneNumber using getline
 //             If phoneNumber is "0":
 //                 Clear screen
 //                 Return
@@ -129,38 +132,54 @@
 //                 Break loop
 //             Print error message "Invalid phone number. Please try again."
 //         newPatient.phoneNumber = phoneNumber
+//
+//         Check for duplicate before adding-----------------------------------------------------------
 //         If isPatientExists(Db, newPatient) is true:
-//             Print "Duplicate entry detected."
+//             Clear screen
+//             Print "==================================================\n";
+//             Print error message "Duplicate entry detected."
+//             Print "Patient already exists in the database!\n";
+//             Print "Please check the name and phone number.\n";
+//             Print "==================================================\n";
+//             Print "press Enter to continue...";
 //             Wait for key press
 //             Clear screen
 //             Continue loop
-//         Loop: // Age input
+//
+//         Age input-----------------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter Patient age: "
 //             Read age
-//             If age is not a number or age < 0:
-//                 Clear input buffer
+//             If reading age fails OR age is less than 0:
+//                 Clear error flags on cin
+//                 Discard the remaining input in the line
 //                 Print error message "Invalid age. Please enter a positive number or '0' to cancel."
 //                 Continue loop
 //             If age is 0:
 //                 Clear screen
 //                 Return
-//             Clear the input buffer
+//             Consume any remaining input in the line
 //             Break loop
 //         newPatient.age = age
-//         Loop: // Weight input
+//
+//         Weight input---------------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter patient weight (kg): "
 //             Read weight
-//             If weight is not a number or weight < 0:
-//                 Clear input buffer
+//             If reading weight fails OR weight is less than 0:
+//                 Clear error flags on cin
+//                 Discard the remaining input in the line
 //                 Print error message "Invalid weight. Please enter a positive number or '0' to cancel."
 //                 Continue loop
 //             If weight is 0:
 //                 Clear screen
 //                 Return
-//             Clear the input buffer
+//             Consume any remaining input in the line
 //             Break loop
 //         newPatient.weight = weight
-//         Loop: // Gender input
+//
+//         Gender input---------------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter gender (M/F): "
 //             Read gender
 //             Convert gender to uppercase
@@ -171,22 +190,26 @@
 //                 Break loop
 //             Print error message "Invalid gender. Please enter M or F."
 //         newPatient.gender = gender
-//         Loop: // Blood Type input
+//
+//         Blood Type input------------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): "
 //             Read bloodType
+//             Convert bloodType to uppercase
 //             If bloodType is "0":
 //                 Clear screen
 //                 Return
-//             Convert bloodType to uppercase
 //             If isValidBloodType(bloodType) is true:
 //                 Break loop
 //             Print error message "Invalid blood type. Please try again."
 //         newPatient.bloodType = bloodType
-//         Loop: // Medical History input
+//
+//         Medical History input-------------------------------------------------------------------------
+//         Loop:
 //             Print "Enter Medical History & Examination(Patient Symptoms or Previous Diagnosis): "
-//             If there are remaining characters in the input buffer:
-//                 Clear the input buffer
-//             Read medicalHistory
+//             If there's a newline character in the input buffer:
+//                 Consume it
+//             Read medicalHistory using getline
 //             If medicalHistory is "0":
 //                 Clear screen
 //                 Return
@@ -194,8 +217,11 @@
 //                 Break loop
 //             Print error message "Medical History cannot be empty. Please try again."
 //         newPatient.medicalHistory = medicalHistory
-//         newPatient.progressLog = ""
-//         newPatient.timestamp = current time
+//
+//         newPatient.progressLog = ""   -- Initialize Progress logs as empty
+//
+//         newPatient.timestamp = current time -- Set the registration timestamp
+//
 //         Clear screen
 //         Add newPatient to Db (Db.push_back(newPatient))
 //         Save database to file
@@ -212,46 +238,22 @@
 //         Wait for key press
 //         Clear screen
 //         return
-//     Clear screen
-//     Print "Logging Progress for patient #" + patientIndex
-//     Print patient details (name, age, weight, blood type)
-//     Print "Previous Medical Progress: " + patient.progressLog
+//     Display patient details
 //     Loop:
-//         Print "Enter the Progress to log for " + patient.name + "(Enter 0 for cancel): "
-//         If there are remaining characters in the input buffer:
-//             Clear the input buffer
-//         Read log
-// 	   If log is empty:
-// 		  Print error message "Log cannot be empty. Please enter a valid Progress Log."
-// 		  Continue loop
-//         If log is '0':
+//         Input progress log (allow '0' to cancel)
+//         If input is '0':
 //             Clear screen
 //             return
-//         Get the current date and time
-//         Append the log with the log date
-//         Append log to newLogs
-//         Print "log added successfully."
-//         Print "Do you want to add another Log? (Y/N): "
-//         Read choice
-//         Convert choice to uppercase
-//         If choice is not 'Y' and choice is not 'N':
-//             Print error message "Invalid input. Please enter Y or N: "
-//             Continue loop
-//         If choice is not 'Y':
+//         Append current date and time to log
+//         Append log to Db[patientIndex].progressLog
+//         Ask if user wants to add another log (Y/N)
+//         If user enters 'N':
 //             Break loop
-//     Print "Do you want to save the Logs? (Y/N): "
-//     Read choice
-//     Convert choice to uppercase
-//     If choice is not 'Y' and choice is not 'N':
-//         Print error message "Invalid input. Please enter Y or N: "
-//     If choice is 'Y':
-//         Clear screen
-//         Append newLogs to Db[patientIndex].progressLog
+//     Ask if user wants to save logs (Y/N)
+//     If user enters 'Y':
 //         Save database to file
-//         Print "Medical Progress logged successfully for " + patient.name
-//         Print "Updated Medical Progress for " + patient.name + ": " + Db[patientIndex].progressLog
+//         Print "Medical Progress logged successfully."
 //     Else:
-//         Clear screen
 //         Print "Logging canceled. No changes were made."
 //     Wait for key press
 //     Clear screen
@@ -264,18 +266,13 @@
 //         Wait for key press
 //         Clear screen
 //         return
-//     Print "Are you sure you want to clear the logs for " + Db[patientIndex].name + "? (Y/N): "
-//     Read confirmClear
-//     Convert confirmClear to uppercase
-//     If confirmClear is not 'Y':
-//         Clear screen
-//         Print "Clear logs operation canceled."
-//         Wait for key press
-//         Clear screen
-//         return
-//     Clear Db[patientIndex].progressLog (Db[patientIndex].progressLog = "")
-//     Save database to file
-//     Print "Logs cleared successfully for " + patient.name
+//     Confirm clear logs with user (Y/N)
+//     If user enters 'Y':
+//         Clear Db[patientIndex].progressLog (Db[patientIndex].progressLog = "")
+//         Save database to file
+//         Print "All previous Medical Progress cleared successfully."
+//     Else:
+//         Print "Clearing logs canceled. No changes were made."
 //     Wait for key press
 //     Clear screen
 
@@ -291,18 +288,13 @@
 //         Wait for key press
 //         Clear screen
 //         return
-//     Print "Are you sure you want to delete the record of " + Db[patientIndex].name + "? (Y/N): "
-//     Read confirmDelete
-//     Convert confirmDelete to uppercase
-//     If confirmDelete is not 'Y':
-//         Clear screen
-//         Print "Deletion canceled. No changes were made to the database."
-//         Wait for key press
-//         Clear screen
-//         return
-//     Remove patient from Db (Db.erase(Db.begin() + patientIndex))
-//     Save database to file
-//     Print "Patient Record deleted successfully."
+//     Confirm delete patient with user (Y/N)
+//     If user enters 'Y':
+//         Remove patient from Db (Db.erase(Db.begin() + patientIndex))
+//         Save database to file
+//         Print "Patient Record deleted successfully."
+//     Else:
+//         Print "Deletion canceled. No changes were made."
 //     Wait for key press
 //     Clear screen
 
@@ -315,110 +307,20 @@
 //         return
 //     Loop:
 //         Display current patient details
-//         Ask user to select item to edit (1-7), or enter 0 to cancel)
-//         Read choice
-//         If choice is not a number or choice < 0 or choice > 7:
-//             Print error message "Invalid input. Please enter a number between 0 and 7: "
-//             Clear input buffer
-//             Continue loop
-//         If choice is 0:
+//         Ask user to select item to edit (1-7, 0 to cancel)
+//         If user enters '0':
 //             Clear screen
 //             return
 //         Switch based on user choice:
-//             Case 1 (Name):
-//                 Print "Editing Name:_"
-//                 Print "Current Name: " + patient.name
-//                 Print "Enter new patient name: "
-//                 If there are remaining characters in the input buffer:
-//                     Clear the input buffer
-//                 Read new_name
-//                 patient.name = new_name
-//                 Break
-//             Case 2 (Age):
-//                 Print "Editing Age:_"
-//                 Print "Current Age: " + patient.age + " years"
-//                 Print "Enter new age: "
-//                 Loop:
-//                     Read new_age
-//                     If new_age is not a number or new_age < 0:
-//                         Print error message "Invalid input. Please enter a positive number: "
-//                         Clear input buffer
-//                         Continue loop
-//                     Break
-//                 patient.age = new_age
-//                 Break
-//             Case 3 (Gender):
-//                 Print "Editing Gender:_"
-//                 Print "Current Gender: " + patient.gender
-//                 Print "Enter new gender (M/F): "
-//                 Read newGender
-//                 Convert newGender to uppercase
-//                 Loop:
-//                     If newGender is not 'M' and newGender is not 'F':
-//                         Print error message "Invalid input. Please enter M or F: "
-//                         Read newGender
-//                         Convert newGender to uppercase
-//                         Continue loop
-//                     Break
-//                 patient.gender = newGender
-//                 Break
-//             Case 4 (Blood Type):
-//                 Print "Editing Blood Type:_"
-//                 Print "Current Blood Type: " + patient.bloodType
-//                 Print "Enter new blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): "
-//                 If there are remaining characters in the input buffer:
-//                     Clear the input buffer
-//                 Read new_bloodType
-//                 Convert new_bloodType to uppercase
-//                 Loop:
-//                     If isValidBloodType(new_bloodType) is false:
-//                         Print error message "Invalid blood type. Please enter a valid type: "
-//                         Read new_bloodType
-//                         Convert new_bloodType to uppercase
-//                         Continue loop
-//                     Break
-//                 patient.bloodType = new_bloodType
-//                 Break
-//             Case 5 (Weight):
-//                 Print "Editing Weight:_"
-//                 Print "Current Weight: " + patient.weight + " kg"
-//                 Print "Enter new weight (kg): "
-//                 Loop:
-//                     Read new_weight
-//                     If new_weight is not a number or new_weight < 0:
-//                         Print error message "Invalid input. Please enter a positive number: "
-//                         Clear input buffer
-//                         Continue loop
-//                     Break
-//                 patient.weight = new_weight
-//                 Break
-//             Case 6 (Phone Number):
-//                 Print "Editing Phone Number:_"
-//                 Print "Current Phone Number: " + patient.phoneNumber
-//                 Print "Enter new phone number: "
-//                 If there are remaining characters in the input buffer:
-//                     Clear the input buffer
-//                 Read new_phoneNumber
-//                 Loop:
-//                     If isValidPhoneNumber(new_phoneNumber) is false:
-//                         Print error message "Invalid phone number format. Please enter a valid phone number: "
-//                         Read new_phoneNumber
-//                         Continue loop
-//                     Break
-//                 patient.phoneNumber = new_phoneNumber
-//                 Break
-//             Case 7 (Medical History):
-//                 Print "Editing Medical History:_"
-//                 Print "Current Medical History: " + patient.medicalHistory
-//                 Print "Enter edited Medical History: "
-//                 If there are remaining characters in the input buffer:
-//                     Clear the input buffer
-//                 Read new_history
-//                 patient.medicalHistory = new_history
-//                 Break
-//         Clear screen
+//             Case 1 (Name): Input new name, update Db[patientIndex].name
+//             Case 2 (Age): Input new age, update Db[patientIndex].age
+//             Case 3 (Gender): Input new gender, update Db[patientIndex].gender
+//             Case 4 (Blood Type): Input new blood type, update Db[patientIndex].bloodType
+//             Case 5 (Weight): Input new weight, update Db[patientIndex].weight
+//             Case 6 (Phone Number): Input new phone number, update Db[patientIndex].phoneNumber
+//             Case 7 (Medical History): Input new medical history, update Db[patientIndex].medicalHistory
 //         Save database to file
-//         Print patient.name + "'s record was updated successfully."
+//         Print "Patient record updated successfully."
 //         Wait for key press
 //         Clear screen
 
@@ -432,10 +334,6 @@
 //         Display patient details (name, age, gender, blood type, weight, phone number, registry date, medical history, progress logs)
 //         Display actions (log progress, clear logs, edit profile, delete profile, back to main menu)
 //         Input user choice
-//         If input is not a number:
-//             Print error message "Invalid input. Please enter a number: "
-//             Clear input buffer
-//             Continue loop
 //         Switch based on user choice:
 //             Case 1: Call logPatientProgress(Db, patientIndex)
 //             Case 2: Call clearLogs(Db, patientIndex)
@@ -445,7 +343,7 @@
 //             Default: Print "Invalid input."
 //     Return to previous menu
 
-// findPatients(Db: vector of Patient):
+// searchPatients(Db: vector of Patient):
 //     Clear screen
 //     Print header "SEARCH PATIENTS"
 //     If Db is empty:
@@ -459,47 +357,37 @@
 //         Case 1 (Name):
 //             Loop:
 //                 Clear screen
-//                 Print "Enter patient name to search: "
-//                 If there are remaining characters in the input buffer:
-//                     Clear the input buffer
-//                 Read searchStr
-//                 If searchStr is empty:
+//                 Input patient name to search
+//                 If input is empty:
 //                     Print "Search string cannot be empty."
 //                     Continue loop
-//                 If searchStr is "0":
+//                 If input is "0":
 //                     Clear screen
 //                     return
 //                 Convert search string to lowercase
-//                 Clear screen
-//                 Print "Searching for patients with name containing: " + searchStr
 //                 Create matchIndices: vector to store indices of matching patients
 //                 For each patient in Db:
 //                     Convert patient.name to lowercase
-//                     If patient.name contains searchStr:
+//                     If patient.name contains search string:
 //                         Add patient's index to matchIndices
-//                         Print patient details (name, age, gender, blood type, phone number)
-//         Case 2 (Phone Number):
-//             Loop:
-//                 Clear screen
-//                 Print "Enter phone number to search: "
-//                 If there are remaining characters in the input buffer:
-//                     Clear the input buffer
-//                 Read searchStr
-//                 If searchStr is empty:
-//                     Print "Search string cannot be empty."
+//                         Display matching patient details
+//                 If matchIndices is empty:
+//                     Print "No patients found with the name containing search string."
+//                     Ask user to retry or cancel
+//                     If user cancels:
+//                         Clear screen
+//                         return
 //                     Continue loop
-//                 If searchStr is "c" or searchStr is "C":
-//                     Clear screen
-//                     Return
-//                 Normalize the phone number by removing non-digit characters
+//                 Break loop
+//             Ask user to select a patient from search results
+//             Input user choice
+//             If user cancels:
 //                 Clear screen
-//                 Print "Searching for patients with phone number containing: " + searchStr
-//                 Create matchIndices: vector to store indices of matching patients
-//                 For each patient in Db:
-//                     Normalize the patient's phone number by removing non-digit characters
-//                     If the normalized patient's phone number contains the normalized search string:
-//                         Add patient's index to matchIndices
-//                         Print patient details (name, age, gender, blood type, phone number)
+//                 return
+//             Call displayPatientProfile(Db, matchIndices[selected - 1])
+//             Return
+//         Case 2 (Phone Number):
+//             Similar logic as search by name, but search by phone number after normalizing it
 //         Case 0:
 //             Clear screen
 //             Return
@@ -522,7 +410,6 @@
 
 // dashboard():
 //     Clear screen
-//     Print header "PRMS DASHBOARD"
 //     Print system statistics (total patients registered, number of male/female patients, average age, average weight)
 //     Wait for key press
 //     Clear screen
@@ -533,7 +420,8 @@
 //     Wait for key press
 //     Clear screen
 
-// adminMenu():
+// ================== SYSTEM ACTIONS MENU FUNCTION ==================
+// systemActions():
 //     Loop:
 //         Clear screen
 //         Display available actions (show system stats, clear database, back to main menu)
@@ -546,22 +434,23 @@
 //         Wait for key press
 //         Clear screen
 
+// ================== MAIN MENU FUNCTION ==================
 // mainMenu():
 //     Loop:
-//         Clear screen
-//         Print main menu options (search patient records, register a new patient, list all patient records, admin actions, info, exit)
+//         Display main menu options (search patient records, register a new patient, list all patient records, system actions, info, exit)
 //         Input user choice
 //         Switch based on user choice:
-//             Case 1: Call System::findPatients(Db)
-//             Case 2: Call System::addPatient(Db)
+//             Case 1: Call System::searchPatients(Db)
+//             Case 2: Call System::registerPatient(Db)
 //             Case 3: Call System::listAllPatients(Db)
-//             Case 4: Call adminMenu()
+//             Case 4: Call systemActions()
 //             Case 5: Call System::info()
 //             Case 0: Clear screen, print "Program Closed... Goodbye!" and break loop
 //             Default: Print "Invalid choice."
 //         Wait for key press
 //         Clear screen
 
+// ================== MAIN FUNCTION ==================
 // main():
 //     Clear screen
 //     Print "WELCOME TO THE PATIENT RECORDS MANAGEMENT SYSTEM!"
