@@ -55,7 +55,7 @@ namespace utils {
     // Validates phone number format
     bool isValidPhoneNumber(const string& phone) {
         if (phone.empty()) return false;
-        if (!(phone.length() == 10)) return false;
+        if (phone.length() < 10) return false;
         for (char c : phone) {
             if (!isdigit(c)) {
                 return false;
@@ -249,7 +249,7 @@ namespace System {
             // Age input
             while (true) {
                 cout << "Enter Patient age: ";
-                if (!(cin >> newPatient.age) || newPatient.age < 0) {
+                if (!(cin >> newPatient.age) || newPatient.age < 0 || newPatient.age > 150) {
                     cin.clear();
                     cin.ignore(10000, '\n'); // Clear the input buffer
                     utils::errMsg("Invalid age. Please enter a positive number or '0' to cancel.");
@@ -578,7 +578,7 @@ namespace System {
                 cout << "Editing Age:_\n";
                 utils::infoMsg("Current Age: " + to_string(patient.age) + " years");
                 cout << "Enter new age: ";
-                while (!(cin >> new_age) || new_age < 0) {
+                while (!(cin >> new_age) || new_age < 0 || new_age > 150) {
                     utils::errMsg("Invalid input. Please enter a positive number: ");
                     cin.clear();
                     cin.ignore(10000, '\n');
@@ -1028,7 +1028,7 @@ namespace System {
     void info(){
         utils::Clear();
         cout << "=============== ABOUT THE SYSTEM ================\n";
-        cout << "This is a Patient Records Management System designed to help\n";
+        cout << "This is a Patient Records Management EHR System designed to help\n";
         cout << "healthcare professionals manage patient records efficiently.\n";
         cout << "Features include:\n";
         cout << "- Registering new patients\n";
