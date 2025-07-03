@@ -559,6 +559,7 @@ namespace System {
                 utils::Clear();
                 return; // Cancel editing
             }
+            cin.ignore();
 
             switch (choice) {
             case 1: {
@@ -566,10 +567,18 @@ namespace System {
                 cout << "----------------------------------------------\n";
                 cout << "Editing Name:_\n";
                 utils::infoMsg("Current Name: " + patient.name);
-                cout << "Enter new patient name: ";
-                cin.ignore();
-                getline(cin, new_name);
-                patient.name = new_name;
+                // Input validation loop for name
+                while (true) {
+                    cout << "Enter new patient name: ";
+                    getline(cin, new_name);
+                    if (!new_name.empty()) {
+                        patient.name = new_name;
+                        break; // Valid input, exit the loop
+                    }
+                    else {
+                        utils::errMsg("Name cannot be empty. Please try again.");
+                    }
+                }
                 break;
             }
             case 2: {
@@ -656,10 +665,18 @@ namespace System {
                 utils::infoMsg("Current Medical History: ");
                 utils::infoMsg(">>> " + patient.medicalHistory);
                 cout << "----------------------------------------------\n";
-                cout << "Enter edited Medical History: ";
-                cin.ignore(); // Clear the input buffer
-                getline(cin, new_history);
-                patient.medicalHistory = new_history;
+                // Input validation loop for medical history
+                while (true) {
+                    cout << "Enter edited Medical History: ";
+                    getline(cin, new_history);
+                    if (!new_history.empty()) {
+                        patient.medicalHistory = new_history;
+                        break; // Valid input, exit the loop
+                    }
+                    else {
+                        utils::errMsg("Medical History cannot be empty. Please try again.");
+                    }
+                }
                 break;
             }
             default:
